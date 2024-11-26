@@ -1,57 +1,49 @@
 import sys
 from Scanner import Scanner
+from Token import Token, TokenType as TT
+from Parser import Parser
+from AstPrinter import AstPrinter
+from RpnPrinter import RpnPrinter
 
 
-class LoxError:
-    __had_error = False
-
-    @classmethod
-    def hadError(cls) -> bool:
-        return cls.__had_error
-
-    @classmethod
-    def set(cls):
-        cls.__had_error = True
+class Lox:
+    errored = False
 
     @classmethod
-    def unset(cls):
-        cls.__had_error = False
+    def runFile(cls, filename: str):
+        with open(filename) as file:
+            file_contents = file.read()
+        cls.run(file_contents)
 
+    @classmethod
+    def runPrompt(cls):
+        while True:
+            print('> ', end='')
+            try:
+                line = input()
+                cls.run(line)
+                Lox.errored = False
+            except EOFError:
+                return
 
-def runFile(filename: str):
-    with open(filename) as file:
-        file_contents = file.read()
-    run(file_contents)
+    @classmethod
+    def run(cls, source: str):
+        scanner = Scanner(source)
+        tokens = scanner.scanTokens()
 
+        parser = Parser(tokens)
+        expr = parser.parse()
 
-def runPrompt():
-    while True:
-        print('> ', end='')
-        try:
-            line = input()
-            run(line)
-            LoxError.unset()
-        except EOFError:
-            return
+        if Lox.errored: return
 
+        print(AstPrinter().print(expr))
 
-def run(source: str):
-    scanner = Scanner(source)
-    tokens = scanner.scanTokens()
+    @classmethod
+    def error(cls, token: Token, message: str):
+        where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
+        cls.report(token.line, where, message)
+        Lox.errored = True
 
-    # For now, just print the tokens.
-    for token in tokens:
-        print(token)
-
-
-def error(line: int, message: str):
-    LoxError.set()
-    report(line, '', message)
-
-
-def report(line: int, where, message: str):
-    print(f'[line {line}] Error{where}: {message}', file=sys.stderr)
-
-
-def hadError() -> bool:
-    return LoxError.hadError()
+    @classmethod
+    def report(cls, line: int, where, message: str):
+        print(f'[line {line}] Error {where}: {message}', file=sys.stderr)

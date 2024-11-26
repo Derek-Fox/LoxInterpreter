@@ -1,5 +1,4 @@
-from Token import Token
-from TokenType import TokenType as TT
+from Token import Token, TokenType as TT
 import Lox as Lox
 
 

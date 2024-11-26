@@ -1,7 +1,6 @@
 import sys
-import Lox as Lox
-from Token import Token
-from TokenType import TokenType
+from Lox import Lox
+from Token import Token, TokenType as TT
 from AstPrinter import AstPrinter
 from RpnPrinter import RpnPrinter
 from Expr import *
@@ -11,12 +10,12 @@ def testRpnPrinter():
     expression = Binary(
         left=Binary(
             left=Literal(9),
-            op=Token(TokenType.MINUS, "-", None, 1),
+            op=Token(TT.MINUS, "-", None, 1),
             right=Literal(8)),
-        op=Token(TokenType.STAR, "*", None, 1),
+        op=Token(TT.STAR, "*", None, 1),
         right=Binary(
             left=Literal(5),
-            op=Token(TokenType.PLUS, "+", None, 1),
+            op=Token(TT.PLUS, "+", None, 1),
             right=Literal(3)
         ))
 
@@ -26,9 +25,9 @@ def testRpnPrinter():
 def testAstPrinter():
     expression = Binary(
         left=Unary(
-            op=Token(TokenType.MINUS, "-", None, 1),
+            op=Token(TT.MINUS, "-", None, 1),
             right=Literal(123)),
-        op=Token(TokenType.STAR, "*", None, 1),
+        op=Token(TT.STAR, "*", None, 1),
         right=Literal(45.67))
 
     print(AstPrinter().print(expression))
@@ -40,7 +39,7 @@ def runInteractive():
 
 def runTokenize(file) -> bool:
     Lox.runFile(file)
-    return Lox.hadError()
+    return Lox.errored
 
 
 def displayHelp():
