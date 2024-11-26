@@ -6,7 +6,7 @@ from RpnPrinter import RpnPrinter
 from Expr import *
 
 
-def testRpnPrinter():
+def test_RpnPrinter():
     expression = Binary(
         left=Binary(
             left=Literal(9),
@@ -22,7 +22,7 @@ def testRpnPrinter():
     print(RpnPrinter().print(expression))
 
 
-def testAstPrinter():
+def test_AstPrinter():
     expression = Binary(
         left=Unary(
             op=Token(TT.MINUS, "-", None, 1),
@@ -33,16 +33,16 @@ def testAstPrinter():
     print(AstPrinter().print(expression))
 
 
-def runInteractive():
-    Lox.runPrompt()
+def run_interactive():
+    Lox.run_prompt()
 
 
-def runTokenize(file) -> bool:
-    Lox.runFile(file)
+def run_tokenize(file) -> bool:
+    Lox.run_file(file)
     return Lox.errored
 
 
-def displayHelp():
+def display_help():
     print(
         '''
         Usage: python ./app/main.py <command> [filename]
@@ -55,24 +55,24 @@ def displayHelp():
     )
 
 
-def displayError(message: str):
+def display_error(message: str):
     print(f'Error: {message}', file=sys.stderr)
 
 
-def parseCmd(args):
+def parse_cmd(args):
     commands = {
-        'interactive': runInteractive,
-        'tokenize': lambda: runTokenize(args[2]),
-        'test-AstPrint': testAstPrinter,
+        'interactive': run_interactive,
+        'tokenize': lambda: run_tokenize(args[2]),
+        'test-AstPrint': test_ast_printer,
         'test-RpnPrint': testRpnPrinter,
-        'help': displayHelp
+        'help': display_help
     }
 
     cmd = args[1]
     func = commands.get(cmd)
 
     if not func:
-        displayError(f'Unknown command {cmd}')
+        display_error(f'Unknown command {cmd}')
         sys.exit(1)
 
     error = func()
@@ -84,7 +84,7 @@ def main():
         print('Usage: python ./app/main.py <command> [filename]', file=sys.stderr)
         exit(1)
     else:
-        parseCmd(sys.argv)
+        parse_cmd(sys.argv)
 
 
 if __name__ == '__main__':

@@ -5,16 +5,16 @@ class AstPrinter(Visitor):
     def print(self, expr: Expr):
         return expr.accept(self)
 
-    def visitBinaryExpr(self, expr: Binary):
+    def visit_binary_expr(self, expr: Binary):
         return self.parenthesize(expr.op.lexeme, [expr.left, expr.right])
 
-    def visitGroupingExpr(self, expr: Grouping):
+    def visit_grouping_expr(self, expr: Grouping):
         return self.parenthesize('grouping', [expr.expr])
 
-    def visitLiteralExpr(self, expr: Literal):
+    def visit_literal_expr(self, expr: Literal):
         return 'nil' if not expr.value else str(expr.value)
 
-    def visitUnaryExpr(self, expr: Unary):
+    def visit_unary_expr(self, expr: Unary):
         return self.parenthesize(expr.op.lexeme, [expr.right])
 
     def parenthesize(self, name: str, exprs: list[Expr]) -> str:

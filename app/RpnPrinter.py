@@ -5,19 +5,19 @@ class RpnPrinter(Visitor):
     def print(self, expr: Expr):
         return expr.accept(self)
 
-    def visitBinaryExpr(self, expr: "Binary"):
-        return self.RpnFormat(expr.op.lexeme, [expr.left, expr.right])
+    def visit_binary_expr(self, expr: "Binary"):
+        return self.format(expr.op.lexeme, [expr.left, expr.right])
 
-    def visitGroupingExpr(self, expr: "Grouping"):
-        return self.RpnFormat('grouping', [expr.expr])
+    def visit_grouping_expr(self, expr: "Grouping"):
+        return self.format('grouping', [expr.expr])
 
-    def visitLiteralExpr(self, expr: "Literal"):
+    def visit_literal_expr(self, expr: "Literal"):
         return 'nil' if not expr.value else str(expr.value)
 
-    def visitUnaryExpr(self, expr: "Unary"):
-        return self.RpnFormat(expr.op.lexeme, [expr.right])
+    def visit_unary_expr(self, expr: "Unary"):
+        return self.format(expr.op.lexeme, [expr.right])
 
-    def RpnFormat(self, name: str, exprs: list[Expr]):
+    def format(self, name: str, exprs: list[Expr]):
         res = []
 
         for expr in exprs:

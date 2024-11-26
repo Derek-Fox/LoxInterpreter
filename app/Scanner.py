@@ -2,7 +2,7 @@ from Token import Token, TokenType as TT
 import Lox as Lox
 
 
-def isDigit(c: str) -> bool:
+def is_digit(c: str) -> bool:
     """
     Check if c is a digit (for our purposes)
     :param c: character to check
@@ -11,7 +11,7 @@ def isDigit(c: str) -> bool:
     return ord('0') <= ord(c) <= ord('9')
 
 
-def isAlpha(c: str) -> bool:
+def is_alpha(c: str) -> bool:
     """
     Check if c is an alphabet character (for our purposes)
     :param c: character to check
@@ -20,13 +20,13 @@ def isAlpha(c: str) -> bool:
     return ('a' <= c <= 'z') or ('A' <= c <= 'Z') or c == '_'
 
 
-def isAlphaNumeric(c: str) -> bool:
+def is_alpha_numeric(c: str) -> bool:
     """
     Check if c is an alphanumeric character (for our purposes)
     :param c: character to check
     :return: True or False
     """
-    return isAlpha(c) or isDigit(c)
+    return is_alpha(c) or is_digit(c)
 
 
 keywords = {
@@ -58,55 +58,59 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-    def scanTokens(self) -> list[Token]:
-        while not self.isAtEnd():
+    def scan(self) -> list[Token]:
+        """
+
+        :return:
+        """
+        while not self.is_at_end():
             self.start = self.current
-            self.scanToken()
+            self.scan_token()
 
         self.tokens.append(Token(TT.EOF, '', None, self.line))
         return self.tokens
 
-    def isAtEnd(self) -> bool:
-        return self.current >= self.source_len
-
-    def scanToken(self):
+    def scan_token(self):
+        """
+        Find Token that corresponds to the character at curr and add to tokens.
+        """
         c = self.advance()
         match c:
             case '(':
-                self.addToken(TT.LEFT_PAREN)
+                self.add_token(TT.LEFT_PAREN)
             case ')':
-                self.addToken(TT.RIGHT_PAREN)
+                self.add_token(TT.RIGHT_PAREN)
             case '{':
-                self.addToken(TT.LEFT_BRACE)
+                self.add_token(TT.LEFT_BRACE)
             case '}':
-                self.addToken(TT.RIGHT_BRACE)
+                self.add_token(TT.RIGHT_BRACE)
             case ',':
-                self.addToken(TT.COMMA)
+                self.add_token(TT.COMMA)
             case '.':
-                self.addToken(TT.DOT)
+                self.add_token(TT.DOT)
             case '-':
-                self.addToken(TT.MINUS)
+                self.add_token(TT.MINUS)
             case '+':
-                self.addToken(TT.PLUS)
+                self.add_token(TT.PLUS)
             case ';':
-                self.addToken(TT.SEMICOLON)
+                self.add_token(TT.SEMICOLON)
             case '*':
-                self.addToken(TT.STAR)
+                self.add_token(TT.STAR)
             case '!':
-                self.addToken(TT.BANG_EQUAL if self.match('=') else TT.BANG)
+                self.add_token(TT.BANG_EQUAL if self.match('=') else TT.BANG)
             case '=':
-                self.addToken(TT.EQUAL_EQUAL if self.match('=') else TT.EQUAL)
+                self.add_token(TT.EQUAL_EQUAL if self.match('=') else TT.EQUAL)
             case '<':
-                self.addToken(TT.LESS_EQUAL if self.match('=') else TT.LESS)
+                self.add_token(TT.LESS_EQUAL if self.match('=') else TT.LESS)
             case '>':
-                self.addToken(TT.GREATER_EQUAL if self.match('=') else TT.GREATER)
+                self.add_token(TT.GREATER_EQUAL if self.match('=') else TT.GREATER)
             case '/':
                 if self.match('/'):  # found a '//' (comment)
                     self.comment()
                 elif self.match('*'):  # found a '/*' (block comment)
-                    self.blockComment()
+                    self.block_comment()
                 else:
-                    self.addToken(TT.SLASH)
+                    self.add_token(TT.SLASH)
             case ' ' | '\r' | '\t':  # ignore whitespace
                 pass
             case '\n':
@@ -114,9 +118,9 @@ class Scanner:
             case '"':
                 self.string()
             case _:
-                if isDigit(c):  # number literal
+                if is_digit(c):  # number literal
                     self.number()
-                elif isAlpha(c):  # identifier or keyword
+                elif is_alpha(c):  # identifier or keyword
                     self.identifier()
                 else:
                     Lox.error(self.line, f'Unexpected character: {c}')
@@ -124,13 +128,13 @@ class Scanner:
     def advance(self) -> str:
         """
         Consume and return a character, advancing to the next in self.source.
-        :return: character currently at self.current
+        :return: character at current
         """
         c = self.source[self.current]
         self.current += 1
         return c
 
-    def addToken(self, t_type: TT, literal: object = None):
+    def add_token(self, t_type: TT, literal: object = None):
         """
         Add a token to the current list of tokens.
         :param t_type: TokenType of the token
@@ -139,13 +143,20 @@ class Scanner:
         text = self.source[self.start:self.current]
         self.tokens.append(Token(t_type, text, literal, self.line))
 
+    def is_at_end(self) -> bool:
+        """
+        Check if scanner hit end of source.
+        :return: True if current greater-equal than length of source
+        """
+        return self.current >= self.source_len
+
     def match(self, expected: str) -> bool:
         """
         Check if the next character matches expected. If so, consume it.
         :param expected: the character to check for
         :return: True if match found, False if not
         """
-        if self.isAtEnd(): return False
+        if self.is_at_end(): return False
         if self.source[self.current] != expected: return False
 
         self.advance()
@@ -156,11 +167,13 @@ class Scanner:
         Peek at the current character in source. Do not advance/consume.
         :return:
         """
-        if self.isAtEnd(): return '\0'
+        if self.is_at_end(): return '\0'
         return self.source[self.current]
 
-    def peekNext(self) -> str:
-        """Peek at the next character in source. Do not advance/consume."""
+    def peek_next(self) -> str:
+        """
+        Peek at the next character in source. Do not advance/consume.
+        """
         if self.current + 1 >= self.source_len: return '\0'
         return self.source[self.current + 1]
 
@@ -168,54 +181,59 @@ class Scanner:
         """
         Consume a string from source
         """
-        while self.peek() != '"' and not self.isAtEnd():
+        while self.peek() != '"' and not self.is_at_end():
             if self.peek() == '\n': self.line += 1
             self.advance()
 
-        if self.isAtEnd():
+        if self.is_at_end():
             Lox.error(self.line, "Unterminated string.")
             return
 
         self.advance()  # eat closing "
 
         string = self.source[self.start + 1: self.current - 1]
-        self.addToken(TT.STRING, string)
+        self.add_token(TT.STRING, string)
 
     def number(self):
         """
         Consume a number literal from source.
         """
-        while isDigit(self.peek()): self.advance()
+        while is_digit(self.peek()): self.advance()
 
-        if self.peek() == '.' and isDigit(self.peekNext()):
+        if self.peek() == '.' and is_digit(self.peek_next()):
             self.advance()  # eat .
 
-        while isDigit(self.peek()): self.advance()
+        while is_digit(self.peek()): self.advance()
 
         number = float(self.source[self.start:self.current])
-        self.addToken(TT.NUMBER, number)
+        self.add_token(TT.NUMBER, number)
 
     def identifier(self):
-        while isAlphaNumeric(self.peek()): self.advance()
+        """
+        Consume an identifier from source.
+        :return:
+        """
+        while is_alpha_numeric(self.peek()): self.advance()
 
         text = self.source[self.start:self.current]
-        self.addToken(keywords.get(text, TT.IDENTIFIER))
+        self.add_token(keywords.get(text, TT.IDENTIFIER))
 
     def comment(self):
         """
         Consume a comment from source.
         """
-        while self.peek() != '\n' and not self.isAtEnd(): self.advance()
+        while self.peek() != '\n' and not self.is_at_end():
+            self.advance()
 
-    def blockComment(self):
+    def block_comment(self):
         """
         Consume a block comment from source
         """
-        while (self.peek() != "*" and self.peekNext() != '/') and not self.isAtEnd():
+        while (self.peek() != "*" and self.peek_next() != '/') and not self.is_at_end():
             if self.peek() == '\n': self.line += 1
             self.advance()
 
-        if self.isAtEnd():
+        if self.is_at_end():
             Lox.error(self.line, "Unterminated block comment.")
             return
 

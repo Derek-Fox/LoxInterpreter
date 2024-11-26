@@ -11,12 +11,18 @@ class Parser:
         pass
 
     def parse(self) -> Expr | None:
+        """
+        Parse the tokens.
+        :return: Expression which is the root of the AST (or None, if errored)
+        """
         try:
             return self.expression()
         except self.ParseError:
             return None
 
-    # methods for CFG rules
+    # ---------- Methods for CFG productions -------------
+    # No doc comments because they would get very repetitive.
+    # Basically, each method corresponds to a production in the Context-Free Grammar
     def expression(self) -> Expr:
         return self.equality()
 
@@ -82,8 +88,13 @@ class Parser:
 
         raise self.error(self.peek(), "Expected expression.")
 
-    # helper functions
+    # ----------- Helper methods ---------------
     def match(self, t_types: list[TT]) -> bool:
+        """
+        Advance if current Token is one of t_types.
+        :param t_types: TokenTypes to check for.
+        :return: True if match found, else false
+        """
         for t_type in t_types:
             if self.check(t_type):
                 self.advance()
@@ -91,27 +102,61 @@ class Parser:
         return False
 
     def check(self, t_type: TT):
-        if self.isAtEnd(): return False
+        """
+        Check if current token is of TokenType t_type
+        :param t_type: TokenType to check for
+        :return: True if types match, else false
+        """
+        if self.is_at_end(): return False
         return self.peek().t_type == t_type
 
     def peek(self) -> Token:
+        """
+        Get the current token. Do not advance/consume.
+        :return: Token at current
+        """
         return self.tokens[self.current]
 
-    def isAtEnd(self) -> bool:
+    def is_at_end(self) -> bool:
+        """
+        Check if parser hit end of file.
+        :return: True if at EOF token, else False
+        """
         return self.peek().t_type == TT.EOF
 
     def previous(self) -> Token:
+        """
+        Get Token at current - 1
+        :return: Token at current - 1
+        """
         return self.tokens[self.current - 1]
 
     def advance(self) -> Token:
-        if not self.isAtEnd(): self.current += 1
+        """
+        Get current Token and advance current pointer.
+        :return: Token at current
+        """
+        if not self.is_at_end(): self.current += 1
         return self.previous()
 
-    def consume(self, t_type: TT, message: str) -> Token:
+    def consume(self, t_type: TT, err_message: str) -> Token:
+        """
+        Advance to next token if current token matches t_type, and return current
+        :param t_type: TokenType to match at current
+        :param err_message: Error message to raise if no match
+        :return: current Token
+        :raises: ParseError if current token doesn't match t_type
+        """
         if self.check(t_type): return self.advance()
-        raise self.error(self.peek(), message)
+        raise self.error(self.peek(), err_message)
 
     def error(self, token: Token, message: str) -> ParseError:
+        """
+        Generate an error and alert Lox
+        :param token: Token where error occurred
+        :param message: Error message
+        :return: ParseError to raise
+        """
         from Lox import Lox
         Lox.error(token, message)
         return self.ParseError()
@@ -119,8 +164,8 @@ class Parser:
     def synchronize(self):
         self.advance()
 
-        while not self.isAtEnd():
+        while not self.is_at_end():
             if self.previous().t_type == TT.SEMICOLON: return
-            if self.peek().type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
+            while self.peek().type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
                 return
             self.advance()
