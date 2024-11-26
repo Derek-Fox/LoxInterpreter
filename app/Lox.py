@@ -1,5 +1,5 @@
 import sys
-from app.Scanner import Scanner
+from Scanner import Scanner
 
 
 class LoxError:

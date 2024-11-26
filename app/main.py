@@ -1,5 +1,5 @@
 import sys
-import app.Lox as Lox
+import Lox as Lox
 from Token import Token
 from TokenType import TokenType
 from AstPrinter import AstPrinter

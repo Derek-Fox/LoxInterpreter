@@ -1,6 +1,6 @@
-from app.Token import Token
-from app.TokenType import TokenType as TT
-import app.Lox as Lox
+from Token import Token
+from TokenType import TokenType as TT
+import Lox as Lox
 
 
 def isDigit(c: str) -> bool:

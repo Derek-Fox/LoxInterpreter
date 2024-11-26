@@ -1,4 +1,4 @@
-import app.TokenType as TokenType
+import TokenType as TokenType
 
 
 class Token:
