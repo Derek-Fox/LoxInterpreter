@@ -40,21 +40,27 @@ def displayHelp():
     )
 
 
+def displayError(message: str):
+    print(f'Error: {message}', file=sys.stderr)
+
+
 def parseCmd(args):
+    commands = {
+        'interactive': runInteractive,
+        'tokenize': lambda: runTokenize(args[2]),
+        'test-print': testAstPrinter,
+        'help': displayHelp
+    }
+
     cmd = args[1]
-    match cmd:
-        case 'interactive':
-            runInteractive()
-        case 'tokenize':
-            error = runTokenize(args[2])
-            if error: sys.exit(65)
-        case 'test-print':
-            testAstPrinter()
-        case 'help':
-            displayHelp()
-        case _:
-            print(f'Unknown command: {cmd}', file=sys.stderr)
-            exit(1)
+    func = commands.get(cmd)
+
+    if not func:
+        displayError(f'Unknown command {cmd}')
+        sys.exit(1)
+
+    error = func()
+    if error: sys.exit(1)
 
 
 def main():
