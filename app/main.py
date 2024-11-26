@@ -6,7 +6,7 @@ from AstPrinter import AstPrinter
 from Expr import *
 
 
-def main():
+def testAstPrinter():
     expression = Binary(
         left=Unary(
             op=Token(TokenType.MINUS, "-", None, 1),
@@ -17,24 +17,33 @@ def main():
 
     print(AstPrinter().print(expression))
 
+def runInteractive():
+    Lox.runPrompt()
 
-# def main():
-#     if len(sys.argv) < 2:
-#         print('Usage: ./your_program.sh <command> [filename]', file=sys.stderr)
-#         exit(1)
-#     else:
-#         command = sys.argv[1]
-#         match command:
-#             case 'interactive':
-#                 Lox.runPrompt()
-#             case 'tokenize':
-#                 filename = sys.argv[2]
-#                 Lox.runFile(filename)
-#                 if Lox.hadError():
-#                     exit(65)
-#             case _:
-#                 print(f'Unknown command: {command}', file=sys.stderr)
-#                 exit(1)
+def runTokenize(file) -> bool:
+    Lox.runFile(file)
+    return Lox.hadError()
+
+def parseCmd(args):
+    cmd = args[1]
+    match cmd:
+        case 'interactive':
+            runInteractive()
+        case 'tokenize':
+            error = runTokenize(args[2])
+            if error: sys.exit(65)
+        case 'testPrint':
+            testAstPrinter()
+        case _:
+            print(f'Unknown command: {cmd}', file=sys.stderr)
+            exit(1)
+
+def main():
+    if len(sys.argv) < 2:
+        print('Usage: ./your_program.sh <command> [filename]', file=sys.stderr)
+        exit(1)
+    else:
+        parseCmd(sys.argv)
 
 
 if __name__ == '__main__':
