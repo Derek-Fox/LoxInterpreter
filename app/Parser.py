@@ -34,3 +34,17 @@ class Parser:
 
     def peek(self) -> Token:
         return self.tokens[current]
+
+    '''TODO: convert these to python
+    private boolean isAtEnd() {
+    return peek().type == EOF;
+    }
+
+    private Token previous() {
+    return tokens.get(current - 1);
+    }
+
+    private Token advance() {
+    if (!isAtEnd()) current++;
+    return previous();
+    }'''
