@@ -5,9 +5,14 @@ from Parser import Parser
 from AstPrinter import AstPrinter
 from RpnPrinter import RpnPrinter
 
+class LoxRuntimeError(RuntimeError):
+    def __init__(self, token: Token, message: str):
+        self.message = message
+        self.token = token
 
 class Lox:
-    errored = False
+    had_error = False
+    had_runtime_error = False
 
     @classmethod
     def run_file(cls, filename: str):
@@ -29,7 +34,7 @@ class Lox:
             try:
                 line = input()
                 cls.run(line)
-                Lox.errored = False
+                Lox.had_error = False
             except EOFError:
                 return
 
@@ -45,7 +50,7 @@ class Lox:
         parser = Parser(tokens)
         expr = parser.parse()
 
-        if Lox.errored: return
+        if Lox.had_error: return
 
         print(AstPrinter().print(expr))  # Currently, we just print the AST
 
@@ -58,7 +63,7 @@ class Lox:
         """
         where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
         cls.report(token.line, where, message)
-        Lox.errored = True
+        Lox.had_error = True
 
     @classmethod
     def report(cls, line: int, where, message: str):
@@ -69,3 +74,8 @@ class Lox:
         :param message: Error message
         """
         print(f'[line {line}] Error {where}: {message}', file=sys.stderr)
+
+    @classmethod
+    def runtime_error(cls, error: LoxRuntimeError):
+        print(f'{error.message}\n[line {error.token.line}]')
+        Lox.had_runtime_error = True

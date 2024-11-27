@@ -64,10 +64,10 @@ def main():
 
     output_dir = sys.argv[1]
     types = {  # Subtype name: [fields: (field, type)]
-        'Binary': [('left', 'Expr'), ('op', 'Token'), ('right', 'Expr')],
+        'Binary': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
         'Grouping': [('expr', 'Expr')],
         'Literal': [('value', 'object')],
-        'Unary': [('op', 'Token'), ('right', 'Expr')],
+        'Unary': [('operator', 'Token'), ('right', 'Expr')],
     }
     base_class = "Expr"
 

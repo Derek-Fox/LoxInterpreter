@@ -39,7 +39,7 @@ def run_interactive():
 
 def run_tokenize(file) -> bool:
     Lox.run_file(file)
-    return Lox.errored
+    return Lox.had_error
 
 
 def display_help():

@@ -13,7 +13,7 @@ class Parser:
     def parse(self) -> Expr | None:
         """
         Parse the tokens.
-        :return: Expression which is the root of the AST (or None, if errored)
+        :return: Expression which is the root of the AST (or None, if had_error)
         """
         try:
             return self.expression()

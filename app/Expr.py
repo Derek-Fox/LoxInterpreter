@@ -28,7 +28,7 @@ class Expr(ABC):
 class Binary(Expr):
     def __init__(self, left: "Expr", op: "Token", right: "Expr", ):
         self.left = left
-        self.op = op
+        self.operator = op
         self.right = right
 
     def accept(self, visitor: "Visitor"):
@@ -53,7 +53,7 @@ class Literal(Expr):
 
 class Unary(Expr):
     def __init__(self, op: "Token", right: "Expr", ):
-        self.op = op
+        self.operator = op
         self.right = right
 
     def accept(self, visitor: "Visitor"):
