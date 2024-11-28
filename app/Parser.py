@@ -1,5 +1,6 @@
 from Token import Token, TokenType as TT
 from Expr import *
+from Stmt import *
 
 
 class Parser:
@@ -10,15 +11,13 @@ class Parser:
     class ParseError(RuntimeError):
         pass
 
-    def parse(self) -> Expr | None:
-        """
-        Parse the tokens.
-        :return: Expression which is the root of the AST (or None, if had_error)
-        """
-        try:
-            return self.expression()
-        except self.ParseError:
-            return None
+    def parse(self) -> list[Stmt]:
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.statement())
+
+        return statements
+
 
     # ---------- Methods for CFG productions -------------
     # No doc comments because they would get very repetitive.
@@ -169,3 +168,18 @@ class Parser:
             while self.peek().type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
                 return
             self.advance()
+
+    def statements(self) -> Stmt:
+        if self.match(TT.PRINT): return self.print_statement()
+
+        return self.expression_statement()
+
+    def print_statement(self) -> Stmt:
+        value = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+
+    def expression_statement(self) -> Stmt:
+        expr = self.expression()
+        consume(TT.SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
