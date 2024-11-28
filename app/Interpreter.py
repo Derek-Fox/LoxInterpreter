@@ -1,7 +1,6 @@
 from Expr import *
 from Token import TokenType as TT
-from Lox import LoxRuntimeError
-
+from LoxRuntimeError import LoxRuntimeError
 
 class Interpreter(Visitor):
     def interpret(self, expression: Expr):
@@ -9,6 +8,7 @@ class Interpreter(Visitor):
             value = self.evaluate(expression)
             print(self.stringify(value))
         except LoxRuntimeError as error:
+            from Lox import Lox
             Lox.runtime_error(error)
 
     def visit_binary_expr(self, expr: "Binary"):
@@ -87,3 +87,4 @@ class Interpreter(Visitor):
         if isinstance(obj, float):
             text = str(obj)
             return text if text[-2:] != ".0" else text[:-2]
+        return str(obj)

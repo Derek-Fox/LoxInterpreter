@@ -63,8 +63,8 @@ def parse_cmd(args):
     commands = {
         'interactive': run_interactive,
         'tokenize': lambda: run_tokenize(args[2]),
-        'test-AstPrint': test_ast_printer,
-        'test-RpnPrint': testRpnPrinter,
+        'test-AstPrint': test_AstPrinter,
+        'test-RpnPrint': test_RpnPrinter,
         'help': display_help
     }
 

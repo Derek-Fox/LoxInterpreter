@@ -1,5 +1,5 @@
 from Token import Token, TokenType as TT
-import Lox as Lox
+from Lox import Lox
 
 
 def is_digit(c: str) -> bool:
@@ -60,7 +60,6 @@ class Scanner:
 
     def scan(self) -> list[Token]:
         """
-
         :return:
         """
         while not self.is_at_end():
@@ -123,7 +122,7 @@ class Scanner:
                 elif is_alpha(c):  # identifier or keyword
                     self.identifier()
                 else:
-                    Lox.error(self.line, f'Unexpected character: {c}')
+                    Lox.error_line(self.line, f'Unexpected character: {c}')
 
     def advance(self) -> str:
         """
@@ -186,7 +185,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            Lox.error(self.line, "Unterminated string.")
+            Lox.error_line(self.line, "Unterminated string.")
             return
 
         self.advance()  # eat closing "
@@ -234,7 +233,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            Lox.error(self.line, "Unterminated block comment.")
+            Lox.error_line(self.line, "Unterminated block comment.")
             return
 
         self.advance()

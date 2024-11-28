@@ -1,16 +1,14 @@
 import sys
-from Scanner import Scanner
 from Token import Token, TokenType as TT
 from Parser import Parser
 from AstPrinter import AstPrinter
 from RpnPrinter import RpnPrinter
+from Interpreter import Interpreter
+from LoxRuntimeError import LoxRuntimeError
 
-class LoxRuntimeError(RuntimeError):
-    def __init__(self, token: Token, message: str):
-        self.message = message
-        self.token = token
 
 class Lox:
+    interpreter = Interpreter()
     had_error = False
     had_runtime_error = False
 
@@ -23,6 +21,9 @@ class Lox:
         with open(filename) as file:
             file_contents = file.read()
         cls.run(file_contents)
+
+        if Lox.had_error: sys.exit(65)
+        if Lox.had_runtime_error: sys.exit(70)
 
     @classmethod
     def run_prompt(cls):
@@ -44,15 +45,20 @@ class Lox:
         Run scanner, parser, interpreter on source.
         :param source: String of Lox source code.
         """
+        from Scanner import Scanner
         scanner = Scanner(source)
         tokens = scanner.scan()
 
         parser = Parser(tokens)
-        expr = parser.parse()
+        expression = parser.parse()
 
         if Lox.had_error: return
 
-        print(AstPrinter().print(expr))  # Currently, we just print the AST
+        Lox.interpreter.interpret(expression)
+
+    @classmethod
+    def error_line(cls, line: int, message: str):
+        cls.report(line, "", message)
 
     @classmethod
     def error(cls, token: Token, message: str):
@@ -63,7 +69,6 @@ class Lox:
         """
         where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
         cls.report(token.line, where, message)
-        Lox.had_error = True
 
     @classmethod
     def report(cls, line: int, where, message: str):
@@ -74,6 +79,7 @@ class Lox:
         :param message: Error message
         """
         print(f'[line {line}] Error {where}: {message}', file=sys.stderr)
+        Lox.had_error = True
 
     @classmethod
     def runtime_error(cls, error: LoxRuntimeError):
