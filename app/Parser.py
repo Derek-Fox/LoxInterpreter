@@ -18,7 +18,6 @@ class Parser:
 
         return statements
 
-
     # ---------- Methods for CFG productions -------------
     # No doc comments because they would get very repetitive.
     # Basically, each method corresponds to a production in the Context-Free Grammar
@@ -170,16 +169,29 @@ class Parser:
             self.advance()
 
     def statements(self) -> Stmt:
-        if self.match(TT.PRINT): return self.print_statement()
+        """
+        Parse a statement from source.
+        Matches the type of statement and calls the appropriate function.
+        :return: Stmt object
+        """
+        if self.match([TT.PRINT]): return self.print_statement()
 
         return self.expression_statement()
 
     def print_statement(self) -> Stmt:
+        """
+        Parse a print statement.
+        :return: Stmt object
+        """
         value = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after value.")
         return Print(value)
 
     def expression_statement(self) -> Stmt:
+        """
+        Parse an expression statement..
+        :return: Stmt object
+        """
         expr = self.expression()
         consume(TT.SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)

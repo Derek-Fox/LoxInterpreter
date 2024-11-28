@@ -1,9 +1,10 @@
 from Expr import *
+from Stmt import *
 from Token import TokenType as TT
 from LoxRuntimeError import LoxRuntimeError
 
 
-class Interpreter(Visitor):
+class Interpreter(ExprVisitor, StmtVisitor):
     def interpret(self, expression: Expr):
         """
         Run the interpreter on input expression.
@@ -16,7 +17,7 @@ class Interpreter(Visitor):
             from Lox import Lox
             Lox.runtime_error(error)
 
-    # -------- Visitor methods ---------
+    # -------- Expr Visitor methods ---------
 
     def visit_binary_expr(self, expr: "Binary"):
         left = self.evaluate(expr.left)

@@ -2,7 +2,7 @@ import sys
 
 
 def define_visitor(f, base_name: str, types: dict):
-    f.write('class Visitor(ABC):\n')
+    f.write(f'class {base_name}Visitor(ABC):\n')
     for class_name in types.keys():
         f.write('\t@abstractmethod\n')
         f.write(f'\tdef visit_{class_name.lower()}_{base_name.lower()}(self, expr: "{class_name}"): pass\n')

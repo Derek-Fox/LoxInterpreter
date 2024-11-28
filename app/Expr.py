@@ -4,7 +4,7 @@ from Token import Token
 
 if TYPE_CHECKING:
 	from Expr import Binary, Grouping, Literal, Unary
-class Visitor(ABC):
+class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_binary_expr(self, expr: "Binary"): pass
 	@abstractmethod

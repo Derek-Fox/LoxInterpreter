@@ -4,7 +4,7 @@ from Token import Token
 
 if TYPE_CHECKING:
 	from Stmt import Expression, Print
-class Visitor(ABC):
+class StmtVisitor(ABC):
 	@abstractmethod
 	def visit_expression_stmt(self, expr: "Expression"): pass
 	@abstractmethod
