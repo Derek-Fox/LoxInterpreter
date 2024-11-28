@@ -28,6 +28,7 @@ class Interpreter(Visitor):
                 return float(left) - float(right)
             case TT.SLASH:
                 self.check_number_operands(expr.operator, left, right)
+                if float(right) == 0: raise LoxRuntimeError(expr.operator, "Cannot divide by 0.")
                 return float(left) / float(right)
             case TT.STAR:
                 self.check_number_operands(expr.operator, left, right)
@@ -37,6 +38,7 @@ class Interpreter(Visitor):
                     return float(left) + float(right)
                 if isinstance(left, str) or isinstance(right, str):
                     return self.stringify(left) + self.stringify(right)
+                raise LoxRuntimeError(expr.operator, "Unsupported types for addition.")
             case TT.GREATER:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) > float(right)
