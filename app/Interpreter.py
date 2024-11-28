@@ -5,6 +5,12 @@ from LoxRuntimeError import LoxRuntimeError
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
+    def visit_expression_stmt(self, expr: "Expression"):
+        self.evaluate(expr.expression)
+
+    def visit_print_stmt(self, expr: "Print"):
+        pass
+
     def interpret(self, expression: Expr):
         """
         Run the interpreter on input expression.
