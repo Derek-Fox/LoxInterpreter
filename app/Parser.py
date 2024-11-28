@@ -158,7 +158,7 @@ class Parser:
         :return: ParseError to raise
         """
         from Lox import Lox
-        Lox.error(token, message)
+        Lox.error_token(token, message)
         return self.ParseError()
 
     def synchronize(self):

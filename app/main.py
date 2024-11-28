@@ -1,12 +1,16 @@
 import sys
-from Lox import Lox
-from Token import Token, TokenType as TT
+
 from AstPrinter import AstPrinter
-from RpnPrinter import RpnPrinter
 from Expr import *
+from Lox import Lox
+from RpnPrinter import RpnPrinter
+from Token import TokenType as TT
 
 
 def test_RpnPrinter():
+    """
+    Test RpnPrinter (reverse polish notation)
+    """
     expression = Binary(
         left=Binary(
             left=Literal(9),
@@ -23,6 +27,9 @@ def test_RpnPrinter():
 
 
 def test_AstPrinter():
+    """
+    Test AstPrinter.
+    """
     expression = Binary(
         left=Unary(
             op=Token(TT.MINUS, "-", None, 1),
@@ -34,45 +41,57 @@ def test_AstPrinter():
 
 
 def run_interactive():
+    """
+    Run interactive Lox shell.
+    """
     Lox.run_prompt()
 
 
-def run_tokenize(file) -> bool:
+def run_file(file) -> bool:
+    """
+    Run Lox source from file.
+    :param file: path to source file
+    :return: had error?
+    """
     Lox.run_file(file)
     return Lox.had_error
 
 
 def display_help():
+    """
+    Display help with command listing.
+    :return:
+    """
     print(
         '''
         Usage: python ./app/main.py <command> [filename]
         Available commands:
-        - interactive: Run the interpreter in interactive mode
-        - tokenize: Run the interpreter on the given file
-        - test-AstPrint: Run the AstPrinter test
-        - help: Display this help message''',
+        - interactive or -i: Run the interpreter in interactive mode
+        - tokenize or -f: Run the interpreter on the given file
+        - help or -h: Display this help message''',
         file=sys.stderr
     )
 
 
-def display_error(message: str):
-    print(f'Error: {message}', file=sys.stderr)
-
-
 def parse_cmd(args):
+    """
+    Parse and run given command from user.
+    :param args: argv from main
+    """
     commands = {
-        'interactive': run_interactive,
-        'tokenize': lambda: run_tokenize(args[2]),
-        'test-AstPrint': test_AstPrinter,
-        'test-RpnPrint': test_RpnPrinter,
-        'help': display_help
+        '--interactive': run_interactive,
+        '-i': run_interactive,
+        '--tokenize': lambda: run_file(args[2]),
+        '-f': lambda: run_file(args[2]),
+        '--help': display_help,
+        '-h': display_help,
     }
 
     cmd = args[1]
     func = commands.get(cmd)
 
     if not func:
-        display_error(f'Unknown command {cmd}')
+        print(f'Error: Unknown command {cmd}', file=sys.stderr)
         sys.exit(1)
 
     error = func()
@@ -81,9 +100,10 @@ def parse_cmd(args):
 
 def main():
     if len(sys.argv) < 2:
-        print('Usage: python ./app/main.py <command> [filename]', file=sys.stderr)
-        exit(1)
-    else:
+        run_interactive()
+    elif len(sys.argv) > 3:
+        print('Usage: python ./app/main.py [command] [filename]')
+    else:  # if no command given, run interactive mode
         parse_cmd(sys.argv)
 
 

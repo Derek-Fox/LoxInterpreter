@@ -58,12 +58,17 @@ class Lox:
 
     @classmethod
     def error_line(cls, line: int, message: str):
+        """
+        Report error at given line to Lox
+        :param line: Line where error occurred
+        :param message: Error message
+        """
         cls.report(line, "", message)
 
     @classmethod
-    def error(cls, token: Token, message: str):
+    def error_token(cls, token: Token, message: str):
         """
-        Set error in Lox.
+        Report error at given token to Lox.
         :param token: Token where error occurred
         :param message: Error message
         """
@@ -83,5 +88,9 @@ class Lox:
 
     @classmethod
     def runtime_error(cls, error: LoxRuntimeError):
+        """
+        Report runtime error to Lox.
+        :param error: LoxRuntimeError
+        """
         print(f'{error.message}\n[line {error.token.line}]')
         Lox.had_runtime_error = True
