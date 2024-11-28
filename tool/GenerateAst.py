@@ -72,6 +72,14 @@ def main():
 
     define_ast(output_dir, base_class, types)
 
+    types = {
+        'Expression': [('expression', 'Expr')],
+        'Print': [('expression', 'Expr')]
+    }
+    base_class = 'Stmt'
+
+    define_ast(output_dir, base_class, types)
+
 
 if __name__ == '__main__':
     main()
