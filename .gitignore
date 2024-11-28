@@ -1,2 +1,2 @@
-*.pyc
+app/__pycache__/
 .idea
