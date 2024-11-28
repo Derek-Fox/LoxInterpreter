@@ -21,7 +21,7 @@ def define_type(f, base_name: str, class_name: str, fields: list):
         f.write(f'\t\tself.{name} = {name}\n')
 
     f.write(f'\tdef accept(self, visitor: "Visitor"):\n')
-    f.write(f'\t\treturn visitor.visit{class_name}{base_name}(self)\n')
+    f.write(f'\t\treturn visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n')
     f.write('\n')
 
 
@@ -54,7 +54,6 @@ def define_ast(output_dir: str, base_name: str, types: dict):
 
         for class_name, fields in types.items():
             define_type(f, base_name, class_name, fields)
-
 
 
 def main():
