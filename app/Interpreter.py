@@ -35,8 +35,8 @@ class Interpreter(Visitor):
             case TT.PLUS:
                 if isinstance(left, float) and isinstance(right, float):
                     return float(left) + float(right)
-                if isinstance(left, str) and isinstance(right, str):
-                    return str(left) + str(right)
+                if isinstance(left, str) or isinstance(right, str):
+                    return self.stringify(left) + self.stringify(right)
             case TT.GREATER:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) > float(right)
@@ -118,4 +118,6 @@ class Interpreter(Visitor):
         if isinstance(obj, float):
             text = str(obj)
             return text if text[-2:] != ".0" else text[:-2]
+        if isinstance(obj, bool):
+            return str(obj).lower()  # why does python have capitalized bools??
         return str(obj)
