@@ -5,23 +5,28 @@ from LoxRuntimeError import LoxRuntimeError
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
-    def visit_expression_stmt(self, expr: "Expression"):
-        self.evaluate(expr.expression)
-
-    def visit_print_stmt(self, expr: "Print"):
-        pass
-
-    def interpret(self, expression: Expr):
+    def interpret(self, statements: list[Stmt]):
         """
         Run the interpreter on input expression.
         :param expression: Expression to run through interpreter.
         """
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for stmt in statements:
+                self.execute(stmt)
         except LoxRuntimeError as error:
             from Lox import Lox
             Lox.runtime_error(error)
+
+    # --------- Stmt Visitor Methods ---------
+    def visit_expression_stmt(self, stmt: "Expression"):
+        self.evaluate(stmt.expression)
+
+    def visit_print_stmt(self, stmt: "Print"):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+
+    def execute(self, stmt: Stmt):
+        stmt.accept(self)
 
     # -------- Expr Visitor methods ---------
 

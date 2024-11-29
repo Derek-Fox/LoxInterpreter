@@ -1,7 +1,7 @@
 from Expr import *
 
 
-class AstPrinter(Visitor):
+class AstPrinter(ExprVisitor):
     def print(self, expr: Expr):
         return expr.accept(self)
 

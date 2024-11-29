@@ -168,7 +168,7 @@ class Parser:
                 return
             self.advance()
 
-    def statements(self) -> Stmt:
+    def statement(self) -> Stmt:
         """
         Parse a statement from source.
         Matches the type of statement and calls the appropriate function.

@@ -50,11 +50,11 @@ class Lox:
         tokens = scanner.scan()
 
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()
 
         if Lox.had_error: return
 
-        Lox.interpreter.interpret(expression)
+        Lox.interpreter.interpret(statements)
 
     @classmethod
     def error_line(cls, line: int, message: str):
