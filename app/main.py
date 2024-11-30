@@ -99,11 +99,11 @@ def parse_cmd(args):
 
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2:  # if no command given, run interactive mode
         run_interactive()
     elif len(sys.argv) > 3:
         print('Usage: python ./app/main.py [command] [filename]')
-    else:  # if no command given, run interactive mode
+    else:
         parse_cmd(sys.argv)
 
 
