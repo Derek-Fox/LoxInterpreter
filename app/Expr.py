@@ -26,7 +26,7 @@ class AssignExpr(Expr):
 	def __init__(self, name: "Token", value: "Expr", ):
 		self.name = name
 		self.value = value
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_assignexpr(self)
 
 class BinaryExpr(Expr):
@@ -34,31 +34,31 @@ class BinaryExpr(Expr):
 		self.left = left
 		self.operator = operator
 		self.right = right
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_binaryexpr(self)
 
 class GroupingExpr(Expr):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_groupingexpr(self)
 
 class LiteralExpr(Expr):
 	def __init__(self, value: "object", ):
 		self.value = value
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_literalexpr(self)
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: "Token", right: "Expr", ):
 		self.operator = operator
 		self.right = right
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_unaryexpr(self)
 
 class VariableExpr(Expr):
 	def __init__(self, name: "Token", ):
 		self.name = name
-	def accept(self, visitor: "Visitor"):
+	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_variableexpr(self)
 

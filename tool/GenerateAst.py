@@ -20,7 +20,7 @@ def define_type(f, base_name: str, class_name: str, fields: list):
     for name, _ in fields:
         f.write(f'\t\tself.{name} = {name}\n')
 
-    f.write(f'\tdef accept(self, visitor: "Visitor"):\n')
+    f.write(f'\tdef accept(self, visitor: "{base_name}Visitor"):\n')
     f.write(f'\t\treturn visitor.visit_{class_name.lower()}(self)\n')
     f.write('\n')
 
@@ -59,6 +59,7 @@ def define_ast(output_dir: str, base_name: str, types: dict):
 def define_stmt_class(output_dir):
     base_class = 'Stmt'
     types = {
+        f'Block{base_class}': [('statements', 'list[Stmt]')],
         f'Expression{base_class}': [('expression', 'Expr')],
         f'Print{base_class}': [('expression', 'Expr')],
         f'Var{base_class}': [('name', 'Token'), ('initializer', 'Expr')]
