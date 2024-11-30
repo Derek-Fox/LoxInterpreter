@@ -219,6 +219,6 @@ class Parser:
 
         while not self.is_at_end():
             if self.previous().t_type == TT.SEMICOLON: return
-            while self.peek().type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
+            while self.peek().t_type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
                 return
             self.advance()
