@@ -1,6 +1,6 @@
-from Token import Token, TokenType as TT
 from Expr import *
 from Stmt import *
+from Token import TokenType as TT
 
 
 class Parser:
@@ -49,7 +49,7 @@ class Parser:
         while self.match([TT.BANG_EQUAL, TT.EQUAL_EQUAL]):
             operator = self.previous()
             right = self.comparison()
-            expr = Binary(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right)
 
         return expr
 
@@ -59,7 +59,7 @@ class Parser:
         while self.match([TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL]):
             operator = self.previous()
             right = self.term()
-            expr = Binary(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right)
 
         return expr
 
@@ -69,7 +69,7 @@ class Parser:
         while self.match([TT.MINUS, TT.PLUS]):
             operator = self.previous()
             right = self.factor()
-            expr = Binary(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right)
 
         return expr
 
@@ -79,7 +79,7 @@ class Parser:
         while self.match([TT.SLASH, TT.STAR]):
             operator = self.previous()
             right = self.unary()
-            expr = Binary(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right)
 
         return expr
 
@@ -87,23 +87,23 @@ class Parser:
         if self.match([TT.BANG, TT.MINUS]):
             operator = self.previous()
             right = self.unary()
-            return Unary(operator, right)
+            return UnaryExpr(operator, right)
 
         return self.primary()
 
     def primary(self) -> Expr:
-        if self.match([TT.FALSE]): return Literal(False)
-        if self.match([TT.TRUE]): return Literal(True)
-        if self.match([TT.NIL]): return Literal(None)
+        if self.match([TT.FALSE]): return LiteralExpr(False)
+        if self.match([TT.TRUE]): return LiteralExpr(True)
+        if self.match([TT.NIL]): return LiteralExpr(None)
 
-        if self.match([TT.NUMBER, TT.STRING]): return Literal(self.previous().literal)
+        if self.match([TT.NUMBER, TT.STRING]): return LiteralExpr(self.previous().literal)
 
-        if self.match([TT.IDENTIFIER]): return Variable(self.previous())
+        if self.match([TT.IDENTIFIER]): return VariableExpr(self.previous())
 
         if self.match([TT.LEFT_PAREN]):
             expr = self.expression()
             self.consume(TT.RIGHT_PAREN, "Expected ')' after expression.")
-            return Grouping(expr)
+            return GroupingExpr(expr)
 
         raise self.error(self.peek(), "Expected expression.")
 
@@ -115,12 +115,12 @@ class Parser:
     def print_statement(self) -> Stmt:
         value = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after value.")
-        return Print(value)
+        return PrintStmt(value)
 
     def expression_statement(self) -> Stmt:
         expr = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after expression.")
-        return Expression(expr)
+        return ExpressionStmt(expr)
 
     def declaration(self) -> Stmt | None:
         try:
@@ -136,7 +136,7 @@ class Parser:
         initializer = None if not self.match([TT.EQUAL]) else self.expression()
 
         self.consume(TT.SEMICOLON, "Expect ';' after variable declaration.")
-        return Var(name, initializer)
+        return VarStmt(name, initializer)
 
     # ----------- Helper methods ---------------
     def match(self, t_types: list[TT]) -> bool:

@@ -1,8 +1,8 @@
+from Environment import Environment
 from Expr import *
+from LoxRuntimeError import LoxRuntimeError
 from Stmt import *
 from Token import TokenType as TT
-from LoxRuntimeError import LoxRuntimeError
-from Environment import Environment
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -22,14 +22,14 @@ class Interpreter(ExprVisitor, StmtVisitor):
             Lox.runtime_error(error)
 
     # --------- Stmt Visitor Methods ---------
-    def visit_expression_stmt(self, stmt: "Expression"):
+    def visit_expressionstmt(self, stmt: "ExpressionStmt"):
         self.evaluate(stmt.expression)
 
-    def visit_print_stmt(self, stmt: "Print"):
+    def visit_printstmt(self, stmt: "PrintStmt"):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
 
-    def visit_var_stmt(self, stmt: "Var"):
+    def visit_varstmt(self, stmt: "VarStmt"):
         initializer = stmt.initializer
         value = None if initializer is None else self.evaluate(initializer)
 
@@ -39,12 +39,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
         stmt.accept(self)
 
     # -------- Expr Visitor methods ---------
-    def visit_assign_expr(self, expr: "Assign"):
+    def visit_assignexpr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
 
-    def visit_binary_expr(self, expr: "Binary"):
+    def visit_binaryexpr(self, expr: "BinaryExpr"):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
@@ -82,13 +82,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
             case TT.BANG_EQUAL:
                 return left != right
 
-    def visit_grouping_expr(self, expr: "Grouping"):
+    def visit_groupingexpr(self, expr: "GroupingExpr"):
         return self.evaluate(expr.expr)
 
-    def visit_literal_expr(self, expr: "Literal"):
+    def visit_literalexpr(self, expr: "LiteralExpr"):
         return expr.value
 
-    def visit_unary_expr(self, expr: "Unary"):
+    def visit_unaryexpr(self, expr: "UnaryExpr"):
         right = self.evaluate(expr.right)
 
         if expr.operator.t_type == TT.MINUS:
@@ -97,7 +97,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         elif expr.operator.t_type == TT.BANG:
             return not self.is_truthy(right)
 
-    def visit_variable_expr(self, expr: "Variable"):
+    def visit_variableexpr(self, expr: "VariableExpr"):
         return self.environment.get(expr.name)
 
     def evaluate(self, expr: Expr) -> object:
@@ -127,7 +127,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         raise LoxRuntimeError(operator, "Operand must be a number.")
 
     @classmethod
-    def check_number_operands(cls, operator: Token, left, right):
+    def check_number_operands(cls, operator: Token, left: object, right: object):
         """
         Check that operands are numbers. Lox only uses floats internally.
         :param operator: Operator which is expecting 2 numbers.

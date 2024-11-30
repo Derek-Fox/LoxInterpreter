@@ -3,35 +3,35 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Stmt import Expression, Print, Var
+	from Stmt import ExpressionStmt, PrintStmt, VarStmt
 class StmtVisitor(ABC):
 	@abstractmethod
-	def visit_expression_stmt(self, expr: "Expression"): pass
+	def visit_expressionstmt(self, expr: "ExpressionStmt"): pass
 	@abstractmethod
-	def visit_print_stmt(self, expr: "Print"): pass
+	def visit_printstmt(self, expr: "PrintStmt"): pass
 	@abstractmethod
-	def visit_var_stmt(self, expr: "Var"): pass
+	def visit_varstmt(self, expr: "VarStmt"): pass
 
 class Stmt(ABC):
 	@abstractmethod
-	def accept(self, visitor: "Visitor"): pass
+	def accept(self, visitor: "StmtVisitor"): pass
 
-class Expression(Stmt):
+class ExpressionStmt(Stmt):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
 	def accept(self, visitor: "Visitor"):
-		return visitor.visit_expression_stmt(self)
+		return visitor.visit_expressionstmt(self)
 
-class Print(Stmt):
+class PrintStmt(Stmt):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
 	def accept(self, visitor: "Visitor"):
-		return visitor.visit_print_stmt(self)
+		return visitor.visit_printstmt(self)
 
-class Var(Stmt):
+class VarStmt(Stmt):
 	def __init__(self, name: "Token", initializer: "Expr", ):
 		self.name = name
 		self.initializer = initializer
 	def accept(self, visitor: "Visitor"):
-		return visitor.visit_var_stmt(self)
+		return visitor.visit_varstmt(self)
 
