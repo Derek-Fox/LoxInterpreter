@@ -3,8 +3,9 @@ from LoxRuntimeError import LoxRuntimeError
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self, enclosing: "Environment" = None):
         self.values = {}
+        self.enclosing = enclosing
 
     def define(self, name: str, value: object):
         """
@@ -28,6 +29,10 @@ class Environment:
             self.values[lexeme] = value
             return
 
+        if self.enclosing:
+            self.enclosing.assign(name, value)
+            return
+
         raise LoxRuntimeError(name, f"Undefined variable '{lexeme}'.")
 
     def get(self, name: Token) -> object:
@@ -40,5 +45,7 @@ class Environment:
         lexeme = name.lexeme
         if lexeme in self.values:
             return self.values[lexeme]
+
+        if self.enclosing: return self.enclosing.get(name)
 
         raise LoxRuntimeError(name, f"Undefined variable '{lexeme}'.")
