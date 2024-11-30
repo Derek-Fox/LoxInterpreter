@@ -2,13 +2,17 @@ from Expr import *
 from Stmt import *
 from Token import TokenType as TT
 from LoxRuntimeError import LoxRuntimeError
+from Environment import Environment
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
+    def __init__(self):
+        self.environment = Environment()
+
     def interpret(self, statements: list[Stmt]):
         """
         Run the interpreter on input expression.
-        :param expression: Expression to run through interpreter.
+        :param statements: list of statements to run through interpreter
         """
         try:
             for stmt in statements:
@@ -24,6 +28,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_print_stmt(self, stmt: "Print"):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
+
+    def visit_var_stmt(self, stmt: "Var"):
+        initializer = stmt.initializer
+        value = None if initializer is None else self.evaluate(initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
 
     def execute(self, stmt: Stmt):
         stmt.accept(self)
@@ -82,6 +92,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return -float(right)
         elif expr.operator.t_type == TT.BANG:
             return not self.is_truthy(right)
+
+    def visit_variable_expr(self, expr: "Variable"):
+        return self.environment.get(expr.name)
 
     def evaluate(self, expr: Expr) -> object:
         return expr.accept(self)

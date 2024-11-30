@@ -14,7 +14,7 @@ class Parser:
     def parse(self) -> list[Stmt]:
         statements = []
         while not self.is_at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
 
         return statements
 
@@ -79,12 +79,58 @@ class Parser:
 
         if self.match([TT.NUMBER, TT.STRING]): return Literal(self.previous().literal)
 
+        if self.match([TT.IDENTIFIER]): return Variable(self.previous())
+
         if self.match([TT.LEFT_PAREN]):
             expr = self.expression()
             self.consume(TT.RIGHT_PAREN, "Expected ')' after expression.")
             return Grouping(expr)
 
         raise self.error(self.peek(), "Expected expression.")
+
+    def statement(self) -> Stmt:
+        """
+        Parse a statement from source.
+        Matches the type of statement and calls the appropriate function.
+        :return: Stmt object
+        """
+        if self.match([TT.PRINT]): return self.print_statement()
+
+        return self.expression_statement()
+
+    def print_statement(self) -> Stmt:
+        """
+        Parse a print statement.
+        :return: Stmt object
+        """
+        value = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+
+    def expression_statement(self) -> Stmt:
+        """
+        Parse an expression statement..
+        :return: Stmt object
+        """
+        expr = self.expression()
+        consume(TT.SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
+
+    def declaration(self) -> Stmt | None:
+        try:
+            if self.match([TT.VAR]): return self.var_declaration()
+            return self.statement()
+        except Parser.ParseError:
+            self.synchronize()
+            return None
+
+    def var_declaration(self) -> Stmt:
+        name = self.consume(TT.IDENTIFIER, "Expected variable name.")
+
+        initializer = None if not self.match([TT.EQUAL]) else self.expression()
+
+        self.consume(TT.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
 
     # ----------- Helper methods ---------------
     def match(self, t_types: list[TT]) -> bool:
@@ -167,31 +213,3 @@ class Parser:
             while self.peek().type in {TT.CLASS, TT.FUN, TT.VAR, TT.FOR, TT.IF, TT.WHILE, TT.PRINT, TT.RETURN}:
                 return
             self.advance()
-
-    def statement(self) -> Stmt:
-        """
-        Parse a statement from source.
-        Matches the type of statement and calls the appropriate function.
-        :return: Stmt object
-        """
-        if self.match([TT.PRINT]): return self.print_statement()
-
-        return self.expression_statement()
-
-    def print_statement(self) -> Stmt:
-        """
-        Parse a print statement.
-        :return: Stmt object
-        """
-        value = self.expression()
-        self.consume(TT.SEMICOLON, "Expect ';' after value.")
-        return Print(value)
-
-    def expression_statement(self) -> Stmt:
-        """
-        Parse an expression statement..
-        :return: Stmt object
-        """
-        expr = self.expression()
-        consume(TT.SEMICOLON, "Expect ';' after expression.")
-        return Expression(expr)

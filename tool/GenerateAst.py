@@ -67,6 +67,7 @@ def main():
         'Grouping': [('expr', 'Expr')],
         'Literal': [('value', 'object')],
         'Unary': [('operator', 'Token'), ('right', 'Expr')],
+        'Variable': [('name', 'Token')]
     }
     base_class = "Expr"
 
@@ -74,7 +75,8 @@ def main():
 
     types = {
         'Expression': [('expression', 'Expr')],
-        'Print': [('expression', 'Expr')]
+        'Print': [('expression', 'Expr')],
+        'Var': [('name', 'Token'), ('initializer', 'Expr')]
     }
     base_class = 'Stmt'
 
