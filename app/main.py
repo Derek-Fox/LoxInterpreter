@@ -1,43 +1,6 @@
 import sys
 
-from AstPrinter import AstPrinter
-from Expr import *
 from Lox import Lox
-from RpnPrinter import RpnPrinter
-from Token import TokenType as TT
-
-
-def test_RpnPrinter():
-    """
-    Test RpnPrinter (reverse polish notation)
-    """
-    expression = Binary(
-        left=Binary(
-            left=Literal(9),
-            op=Token(TT.MINUS, "-", None, 1),
-            right=Literal(8)),
-        op=Token(TT.STAR, "*", None, 1),
-        right=Binary(
-            left=Literal(5),
-            op=Token(TT.PLUS, "+", None, 1),
-            right=Literal(3)
-        ))
-
-    print(RpnPrinter().print(expression))
-
-
-def test_AstPrinter():
-    """
-    Test AstPrinter.
-    """
-    expression = Binary(
-        left=Unary(
-            op=Token(TT.MINUS, "-", None, 1),
-            right=Literal(123)),
-        op=Token(TT.STAR, "*", None, 1),
-        right=Literal(45.67))
-
-    print(AstPrinter().print(expression))
 
 
 def run_interactive():

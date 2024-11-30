@@ -60,7 +60,8 @@ class Scanner:
 
     def scan(self) -> list[Token]:
         """
-        :return:
+        Scan the characters from source and form tokens.
+        :return: List of tokens.
         """
         while not self.is_at_end():
             self.start = self.current

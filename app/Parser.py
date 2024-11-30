@@ -12,6 +12,10 @@ class Parser:
         pass
 
     def parse(self) -> list[Stmt]:
+        """
+        Parse the tokens.
+        :return: List of statements
+        """
         statements = []
         while not self.is_at_end():
             statements.append(self.declaration())
@@ -104,29 +108,16 @@ class Parser:
         raise self.error(self.peek(), "Expected expression.")
 
     def statement(self) -> Stmt:
-        """
-        Parse a statement from source.
-        Matches the type of statement and calls the appropriate function.
-        :return: Stmt object
-        """
         if self.match([TT.PRINT]): return self.print_statement()
 
         return self.expression_statement()
 
     def print_statement(self) -> Stmt:
-        """
-        Parse a print statement.
-        :return: Stmt object
-        """
         value = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after value.")
         return Print(value)
 
     def expression_statement(self) -> Stmt:
-        """
-        Parse an expression statement..
-        :return: Stmt object
-        """
         expr = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)
@@ -221,6 +212,9 @@ class Parser:
         return self.ParseError()
 
     def synchronize(self):
+        """
+        Enter panic mode and try to synchronize the parser. Basically, skip to the next statement.
+        """
         self.advance()
 
         while not self.is_at_end():

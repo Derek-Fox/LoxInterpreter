@@ -11,7 +11,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def interpret(self, statements: list[Stmt]):
         """
-        Run the interpreter on input expression.
+        Run the interpreter on input statements.
         :param statements: list of statements to run through interpreter
         """
         try:

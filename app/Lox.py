@@ -1,10 +1,9 @@
 import sys
-from Token import Token, TokenType as TT
-from Parser import Parser
-from AstPrinter import AstPrinter
-from RpnPrinter import RpnPrinter
+
 from Interpreter import Interpreter
 from LoxRuntimeError import LoxRuntimeError
+from Parser import Parser
+from Token import Token, TokenType as TT
 
 
 class Lox:
