@@ -22,7 +22,22 @@ class Parser:
     # No doc comments because they would get very repetitive.
     # Basically, each method corresponds to a production in the Context-Free Grammar
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self) -> Expr:
+        expr = self.equality()
+
+        if self.match([TT.EQUAL]):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target.")
+
+        return expr
 
     def equality(self) -> Expr:
         expr = self.comparison()
@@ -113,7 +128,7 @@ class Parser:
         :return: Stmt object
         """
         expr = self.expression()
-        consume(TT.SEMICOLON, "Expect ';' after expression.")
+        self.consume(TT.SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)
 
     def declaration(self) -> Stmt | None:

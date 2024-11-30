@@ -56,31 +56,39 @@ def define_ast(output_dir: str, base_name: str, types: dict):
             define_type(f, base_name, class_name, fields)
 
 
-def main():
-    if len(sys.argv) != 2:
-        print('Usage: python GenerateAst.py <output dir>')
-        return
-
-    output_dir = sys.argv[1]
-    types = {  # Subtype name: [fields: (field, type)]
-        'Binary': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
-        'Grouping': [('expr', 'Expr')],
-        'Literal': [('value', 'object')],
-        'Unary': [('operator', 'Token'), ('right', 'Expr')],
-        'Variable': [('name', 'Token')]
-    }
-    base_class = "Expr"
-
-    define_ast(output_dir, base_class, types)
-
+def define_stmt_class(output_dir):
     types = {
         'Expression': [('expression', 'Expr')],
         'Print': [('expression', 'Expr')],
         'Var': [('name', 'Token'), ('initializer', 'Expr')]
     }
     base_class = 'Stmt'
-
     define_ast(output_dir, base_class, types)
+
+
+def define_expr_class(output_dir):
+    types = {
+        'Assign': [('name', 'Token'), ('value', 'Expr')],
+        'Binary': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
+        'Grouping': [('expression', 'Expr')],
+        'Literal': [('value', 'object')],
+        'Unary': [('operator', 'Token'), ('right', 'Expr')],
+        'Variable': [('name', 'Token')]
+    }
+    base_class = "Expr"
+    define_ast(output_dir, base_class, types)
+
+
+def main():
+    if len(sys.argv) != 2:
+        print('Usage: python GenerateAst.py <output dir>')
+        return
+
+    output_dir = sys.argv[1]
+
+    define_expr_class(output_dir)
+
+    define_stmt_class(output_dir)
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ class AstPrinter(ExprVisitor):
         return self.parenthesize(expr.operator.lexeme, [expr.left, expr.right])
 
     def visit_grouping_expr(self, expr: Grouping):
-        return self.parenthesize('grouping', [expr.expr])
+        return self.parenthesize('grouping', [expr.expression])
 
     def visit_literal_expr(self, expr: Literal):
         return 'nil' if not expr.value else str(expr.value)

@@ -39,6 +39,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
         stmt.accept(self)
 
     # -------- Expr Visitor methods ---------
+    def visit_assign_expr(self, expr: "Assign"):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
 
     def visit_binary_expr(self, expr: "Binary"):
         left = self.evaluate(expr.left)

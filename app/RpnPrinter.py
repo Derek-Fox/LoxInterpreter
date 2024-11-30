@@ -9,7 +9,7 @@ class RpnPrinter(ExprVisitor):
         return self.format(expr.operator.lexeme, [expr.left, expr.right])
 
     def visit_grouping_expr(self, expr: "Grouping"):
-        return self.format('grouping', [expr.expr])
+        return self.format('grouping', [expr.expression])
 
     def visit_literal_expr(self, expr: "Literal"):
         return 'nil' if not expr.value else str(expr.value)
