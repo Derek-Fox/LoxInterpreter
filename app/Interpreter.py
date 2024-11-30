@@ -22,6 +22,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
             Lox.runtime_error(error)
 
     # --------- Stmt Visitor Methods ---------
+    def visit_blockstmt(self, stmt: "BlockStmt"):
+        self.execute_block(stmt.statements, Environment(self.environment))
+
     def visit_expressionstmt(self, stmt: "ExpressionStmt"):
         self.evaluate(stmt.expression)
 
@@ -37,6 +40,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def execute(self, stmt: Stmt):
         stmt.accept(self)
+
+    def execute_block(self, statements: list[Stmt], environment: Environment):
+        previous = self.environment
+
+        try:
+            self.environment = environment
+            for stmt in statements:
+                self.execute(stmt)
+        finally:
+            self.environment = previous
 
     # -------- Expr Visitor methods ---------
     def visit_assignexpr(self, expr: "AssignExpr"):
