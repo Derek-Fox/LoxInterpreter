@@ -108,6 +108,7 @@ class Parser:
         raise self.error(self.peek(), "Expected expression.")
 
     def statement(self) -> Stmt:
+        if self.match([TT.IF]): return self.if_statement()
         if self.match([TT.PRINT]): return self.print_statement()
         if self.match([TT.LEFT_BRACE]): return BlockStmt(self.block())
 
@@ -121,6 +122,19 @@ class Parser:
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after block.")
         return statements
+
+    def if_statement(self) -> Stmt:
+        self.consume(TT.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after 'if'.")
+
+        thenBranch = self.statement()
+        elseBranch = None
+
+        if self.match([TT.ELSE]):
+            elseBranch = self.statement()
+
+        return IfStmt(condition, thenBranch, elseBranch)
 
     def print_statement(self) -> Stmt:
         value = self.expression()

@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Stmt import BlockStmt, ExpressionStmt, PrintStmt, VarStmt
+	from Stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, VarStmt
 class StmtVisitor(ABC):
 	@abstractmethod
 	def visit_blockstmt(self, expr: "BlockStmt"): pass
 	@abstractmethod
 	def visit_expressionstmt(self, expr: "ExpressionStmt"): pass
+	@abstractmethod
+	def visit_ifstmt(self, expr: "IfStmt"): pass
 	@abstractmethod
 	def visit_printstmt(self, expr: "PrintStmt"): pass
 	@abstractmethod
@@ -29,6 +31,14 @@ class ExpressionStmt(Stmt):
 		self.expression = expression
 	def accept(self, visitor: "StmtVisitor"):
 		return visitor.visit_expressionstmt(self)
+
+class IfStmt(Stmt):
+	def __init__(self, condition: "Expr", thenBranch: "Stmt", elseBranch: "Stmt", ):
+		self.condition = condition
+		self.thenBranch = thenBranch
+		self.elseBranch = elseBranch
+	def accept(self, visitor: "StmtVisitor"):
+		return visitor.visit_ifstmt(self)
 
 class PrintStmt(Stmt):
 	def __init__(self, expression: "Expr", ):
