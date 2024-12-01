@@ -9,14 +9,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.environment = Environment()
 
-    def interpret(self, statements: list[Stmt]):
+    def interpret(self, statements: list[Stmt], repl: bool = False):
         """
         Run the interpreter on input statements.
         :param statements: list of statements to run through interpreter
+        :param repl: whether to print the output of expressions immediately after running (for repl)
         """
         try:
             for stmt in statements:
-                self.execute(stmt)
+                ret = self.execute(stmt)
+                if ret and repl: print(self.stringify(ret))  # print the return of expressions in repl
         except LoxRuntimeError as error:
             from Lox import Lox
             Lox.runtime_error(error)
@@ -26,7 +28,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.execute_block(stmt.statements, Environment(self.environment))
 
     def visit_expressionstmt(self, stmt: "ExpressionStmt"):
-        self.evaluate(stmt.expression)
+        return self.evaluate(stmt.expression)
 
     def visit_printstmt(self, stmt: "PrintStmt"):
         value = self.evaluate(stmt.expression)
@@ -39,7 +41,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.environment.define(stmt.name.lexeme, value)
 
     def execute(self, stmt: Stmt):
-        stmt.accept(self)
+        return stmt.accept(self)
 
     def execute_block(self, statements: list[Stmt], environment: Environment):
         previous = self.environment

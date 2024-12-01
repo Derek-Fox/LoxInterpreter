@@ -33,16 +33,17 @@ class Lox:
             print('> ', end='')
             try:
                 line = input()
-                cls.run(line)
+                cls.run(line, repl=True)
                 Lox.had_error = False
             except EOFError:
                 return
 
     @classmethod
-    def run(cls, source: str):
+    def run(cls, source: str, repl: bool = False):
         """
         Run scanner, parser, interpreter on source.
         :param source: String of Lox source code.
+        :param repl: Whether it is running in the repl.
         """
         from Scanner import Scanner
         scanner = Scanner(source)
@@ -53,7 +54,7 @@ class Lox:
 
         if Lox.had_error: return
 
-        Lox.interpreter.interpret(statements)
+        Lox.interpreter.interpret(statements, repl)
 
     @classmethod
     def error_line(cls, line: int, message: str):
