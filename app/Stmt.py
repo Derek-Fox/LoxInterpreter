@@ -3,18 +3,20 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, VarStmt
+	from Stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, VarStmt, WhileStmt
 class StmtVisitor(ABC):
 	@abstractmethod
-	def visit_blockstmt(self, expr: "BlockStmt"): pass
+	def visit_block_stmt(self, stmt: "BlockStmt"): pass
 	@abstractmethod
-	def visit_expressionstmt(self, expr: "ExpressionStmt"): pass
+	def visit_expression_stmt(self, stmt: "ExpressionStmt"): pass
 	@abstractmethod
-	def visit_ifstmt(self, expr: "IfStmt"): pass
+	def visit_if_stmt(self, stmt: "IfStmt"): pass
 	@abstractmethod
-	def visit_printstmt(self, expr: "PrintStmt"): pass
+	def visit_print_stmt(self, stmt: "PrintStmt"): pass
 	@abstractmethod
-	def visit_varstmt(self, expr: "VarStmt"): pass
+	def visit_var_stmt(self, stmt: "VarStmt"): pass
+	@abstractmethod
+	def visit_while_stmt(self, stmt: "WhileStmt"): pass
 
 class Stmt(ABC):
 	@abstractmethod
@@ -24,13 +26,13 @@ class BlockStmt(Stmt):
 	def __init__(self, statements: "list[Stmt]", ):
 		self.statements = statements
 	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_blockstmt(self)
+		return visitor.visit_block_stmt(self)
 
 class ExpressionStmt(Stmt):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
 	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_expressionstmt(self)
+		return visitor.visit_expression_stmt(self)
 
 class IfStmt(Stmt):
 	def __init__(self, condition: "Expr", thenBranch: "Stmt", elseBranch: "Stmt", ):
@@ -38,18 +40,25 @@ class IfStmt(Stmt):
 		self.thenBranch = thenBranch
 		self.elseBranch = elseBranch
 	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_ifstmt(self)
+		return visitor.visit_if_stmt(self)
 
 class PrintStmt(Stmt):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
 	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_printstmt(self)
+		return visitor.visit_print_stmt(self)
 
 class VarStmt(Stmt):
 	def __init__(self, name: "Token", initializer: "Expr", ):
 		self.name = name
 		self.initializer = initializer
 	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_varstmt(self)
+		return visitor.visit_var_stmt(self)
+
+class WhileStmt(Stmt):
+	def __init__(self, condition: "Expr", body: "Stmt", ):
+		self.condition = condition
+		self.body = body
+	def accept(self, visitor: "StmtVisitor"):
+		return visitor.visit_while_stmt(self)
 

@@ -6,19 +6,19 @@ if TYPE_CHECKING:
 	from Expr import LogicalExpr, AssignExpr, BinaryExpr, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr
 class ExprVisitor(ABC):
 	@abstractmethod
-	def visit_logicalexpr(self, expr: "LogicalExpr"): pass
+	def visit_logical_expr(self, expr: "LogicalExpr"): pass
 	@abstractmethod
-	def visit_assignexpr(self, expr: "AssignExpr"): pass
+	def visit_assign_expr(self, expr: "AssignExpr"): pass
 	@abstractmethod
-	def visit_binaryexpr(self, expr: "BinaryExpr"): pass
+	def visit_binary_expr(self, expr: "BinaryExpr"): pass
 	@abstractmethod
-	def visit_groupingexpr(self, expr: "GroupingExpr"): pass
+	def visit_grouping_expr(self, expr: "GroupingExpr"): pass
 	@abstractmethod
-	def visit_literalexpr(self, expr: "LiteralExpr"): pass
+	def visit_literal_expr(self, expr: "LiteralExpr"): pass
 	@abstractmethod
-	def visit_unaryexpr(self, expr: "UnaryExpr"): pass
+	def visit_unary_expr(self, expr: "UnaryExpr"): pass
 	@abstractmethod
-	def visit_variableexpr(self, expr: "VariableExpr"): pass
+	def visit_variable_expr(self, expr: "VariableExpr"): pass
 
 class Expr(ABC):
 	@abstractmethod
@@ -30,14 +30,14 @@ class LogicalExpr(Expr):
 		self.operator = operator
 		self.right = right
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_logicalexpr(self)
+		return visitor.visit_logical_expr(self)
 
 class AssignExpr(Expr):
 	def __init__(self, name: "Token", value: "Expr", ):
 		self.name = name
 		self.value = value
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_assignexpr(self)
+		return visitor.visit_assign_expr(self)
 
 class BinaryExpr(Expr):
 	def __init__(self, left: "Expr", operator: "Token", right: "Expr", ):
@@ -45,30 +45,30 @@ class BinaryExpr(Expr):
 		self.operator = operator
 		self.right = right
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_binaryexpr(self)
+		return visitor.visit_binary_expr(self)
 
 class GroupingExpr(Expr):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_groupingexpr(self)
+		return visitor.visit_grouping_expr(self)
 
 class LiteralExpr(Expr):
 	def __init__(self, value: "object", ):
 		self.value = value
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_literalexpr(self)
+		return visitor.visit_literal_expr(self)
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: "Token", right: "Expr", ):
 		self.operator = operator
 		self.right = right
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_unaryexpr(self)
+		return visitor.visit_unary_expr(self)
 
 class VariableExpr(Expr):
 	def __init__(self, name: "Token", ):
 		self.name = name
 	def accept(self, visitor: "ExprVisitor"):
-		return visitor.visit_variableexpr(self)
+		return visitor.visit_variable_expr(self)
 
