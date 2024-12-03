@@ -1,84 +1,86 @@
 import sys
 
 
-def define_visitor(f, base_name: str, types: dict):
-    f.write(f'class {base_name}Visitor(ABC):\n')
-    for class_name in types.keys():
-        f.write('\t@abstractmethod\n')
-        f.write(f'\tdef visit_{class_name.lower()}_{base_name.lower()}(self, {base_name.lower()}: "{class_name}{base_name}"): pass\n')
-    f.write('\n')
+def define_type(file, base_name: str, class_name: str, fields: dict[str, str]):
+    file.write(f'class {class_name}{base_name}({base_name}):\n')
+
+    file.write(f'\tdef __init__(self, ')
+    for field_name, field_type in fields.items():
+        file.write(f'{field_name}: "{field_type}", ')
+    file.write('):\n')
+
+    for field_name in fields.keys():
+        file.write(f'\t\tself.{field_name} = {field_name}\n')
+
+    file.write(f'\tdef accept(self, visitor: "{base_name}Visitor"):\n')
+    file.write(f'\t\treturn visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n')
+    file.write('\n')
 
 
-def define_type(f, base_name: str, class_name: str, fields: list):
-    f.write(f'class {class_name}{base_name}({base_name}):\n')
-
-    f.write(f'\tdef __init__(self, ')
-    for name, type in fields:
-        f.write(f'{name}: "{type}", ')
-    f.write('):\n')
-
-    for name, _ in fields:
-        f.write(f'\t\tself.{name} = {name}\n')
-
-    f.write(f'\tdef accept(self, visitor: "{base_name}Visitor"):\n')
-    f.write(f'\t\treturn visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n')
-    f.write('\n')
+def define_base(file, base_name):
+    file.write(f'class {base_name}(ABC):\n')
+    file.write('\t@abstractmethod\n')
+    file.write(f'\tdef accept(self, visitor: "{base_name}Visitor"): pass\n\n')
 
 
-def define_base(base_name, f):
-    f.write(f'class {base_name}(ABC):\n')
-    f.write('\t@abstractmethod\n')
-    f.write(f'\tdef accept(self, visitor: "{base_name}Visitor"): pass\n\n')
+def define_visitor(file, base_name: str, class_names: list[str]):
+    file.write(f'class {base_name}Visitor(ABC):\n')
+    for class_name in class_names:
+        file.write('\t@abstractmethod\n')
+        file.write(f'\tdef visit_{class_name.lower()}_{base_name.lower()}')
+        file.write(f'(self, {base_name.lower()}: "{class_name}{base_name}"): pass\n')
+    file.write('\n')
 
 
-def write_imports(base_name, f, types):
-    f.write('from abc import ABC, abstractmethod\n')
-    f.write('from typing import TYPE_CHECKING\n')
-    f.write('from Token import Token\n')
-    f.write('\n')
-    f.write('if TYPE_CHECKING:\n')
-    f.write(f'\tfrom {base_name} import ')
-    f.write(', '.join([f'{class_name}{base_name}' for class_name in types.keys()]))
-    f.write('\n')
+def write_imports(file, base_name: str, class_names: list[str]):
+    file.write('from abc import ABC, abstractmethod\n')
+    file.write('from typing import TYPE_CHECKING\n')
+    file.write('from Token import Token\n')
+    file.write('\n')
+    file.write('if TYPE_CHECKING:\n')
+    file.write(f'\tfrom {base_name} import ')
+    file.write(', '.join([f'{class_name}{base_name}' for class_name in class_names]))
+    file.write('\n')
 
 
-def define_ast(output_dir: str, base_name: str, types: dict):
+def define_ast(output_dir: str, base_name: str, types: dict[str, dict[str, str]]):
     path = f'{output_dir}/{base_name}.py'
+    class_names = list(types.keys())
 
-    with open(path, 'w') as f:
-        write_imports(base_name, f, types)
+    with open(path, 'w') as file:
+        write_imports(file, base_name, class_names)
 
-        define_visitor(f, base_name, types)
+        define_visitor(file, base_name, class_names)
 
-        define_base(base_name, f)
+        define_base(file, base_name)
 
         for class_name, fields in types.items():
-            define_type(f, base_name, class_name, fields)
+            define_type(file, base_name, class_name, fields)
 
 
-def define_stmt_class(output_dir):
+def define_stmt_classes(output_dir):
     base_class = 'Stmt'
     types = {
-        'Block': [('statements', 'list[Stmt]')],
-        'Expression': [('expression', 'Expr')],
-        'If': [('condition', 'Expr'), ('thenBranch', 'Stmt'), ('elseBranch', 'Stmt')],
-        'Print': [('expression', 'Expr')],
-        'Var': [('name', 'Token'), ('initializer', 'Expr')],
-        'While': [('condition', 'Expr'), ('body', 'Stmt')]
+        'Block': {'statements': 'list[Stmt]'},
+        'Expression': {'expression': 'Expr'},
+        'If': {'condition': 'Expr', 'thenBranch': 'Stmt', 'elseBranch': 'Stmt'},
+        'Print': {'expression': 'Expr'},
+        'Var': {'name': 'Token', 'initializer': 'Expr'},
+        'While': {'condition': 'Expr', 'body': 'Stmt'}
     }
     define_ast(output_dir, base_class, types)
 
 
-def define_expr_class(output_dir):
+def define_expr_classes(output_dir):
     base_class = "Expr"
     types = {
-        'Logical': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
-        'Assign': [('name', 'Token'), ('value', 'Expr')],
-        'Binary': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
-        'Grouping': [('expression', 'Expr')],
-        'Literal': [('value', 'object')],
-        'Unary': [('operator', 'Token'), ('right', 'Expr')],
-        'Variable': [('name', 'Token')]
+        'Logical': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
+        'Assign': {'name': 'Token', 'value': 'Expr'},
+        'Binary': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
+        'Grouping': {'expression': 'Expr'},
+        'Literal': {'value': 'object'},
+        'Unary': {'operator': 'Token', 'right': 'Expr'},
+        'Variable': {'name': 'Token'}
     }
     define_ast(output_dir, base_class, types)
 
@@ -90,9 +92,9 @@ def main():
 
     output_dir = sys.argv[1]
 
-    define_expr_class(output_dir)
+    define_expr_classes(output_dir)
 
-    define_stmt_class(output_dir)
+    define_stmt_classes(output_dir)
 
 
 if __name__ == '__main__':
