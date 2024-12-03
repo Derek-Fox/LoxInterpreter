@@ -28,7 +28,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.execute_block(stmt.statements, Environment(self.environment))
 
     def visit_expressionstmt(self, stmt: "ExpressionStmt"):
-        return self.evaluate(stmt.expression)
+        return self.evaluate(stmt.expression)  # return the value here so it can be printed when in REPL
 
     def visit_printstmt(self, stmt: "PrintStmt"):
         value = self.evaluate(stmt.expression)
@@ -39,6 +39,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = None if initializer is None else self.evaluate(initializer)
 
         self.environment.define(stmt.name.lexeme, value)
+
+    def visit_ifstmt(self, stmt: "IfStmt"):
+        if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.thenBranch)
+        elif stmt.elseBranch: self.execute(stmt.elseBranch)
 
     def execute(self, stmt: Stmt):
         return stmt.accept(self)
