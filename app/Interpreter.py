@@ -58,6 +58,17 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.environment = previous
 
     # -------- Expr Visitor methods ---------
+    def visit_logicalexpr(self, expr: "LogicalExpr"):
+        left = self.evaluate(expr.left)
+
+        # attempt to short circuit
+        if expr.operator.t_type == TT.OR:
+            if self.is_truthy(left): return left  # for OR, if first is true, return it
+        else:
+            if not self.is_truthy(left): return left  # for AND, if first is false, return it
+
+        return self.evaluate(expr.right)  # have to evaluate the second operand
+
     def visit_assignexpr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
