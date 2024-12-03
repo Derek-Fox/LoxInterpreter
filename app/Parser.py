@@ -128,6 +128,7 @@ class Parser:
         raise self.error(self.peek(), "Expect expression.")
 
     def statement(self) -> Stmt:
+        if self.match([TT.FOR]): return self.for_statement()
         if self.match([TT.IF]): return self.if_statement()
         if self.match([TT.PRINT]): return self.print_statement()
         if self.match([TT.WHILE]): return self.while_statement()
@@ -143,6 +144,41 @@ class Parser:
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after block.")
         return statements
+
+    def for_statement(self) -> Stmt:
+        self.consume(TT.LEFT_PAREN, "Expect '(' after 'for'.")
+
+        if self.match([TT.SEMICOLON]):
+            initializer = None
+        elif self.match([TT.VAR]):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        condition = None
+        if not self.check(TT.SEMICOLON):
+            condition = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after 'for' condition.")
+
+        increment = None
+        if not self.check(TT.SEMICOLON):
+            increment = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after 'for' clauses.")
+
+        body = self.statement()
+
+        # de-sugar the for loop syntax
+        if increment:
+            body = BlockStmt([body, ExpressionStmt(increment)])
+
+        if not condition:
+            condition = LiteralExpr(True)
+        body = WhileStmt(condition, body)
+
+        if initializer:
+            body = BlockStmt([initializer, body])
+
+        return body
 
     def if_statement(self) -> Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'if'.")
