@@ -161,7 +161,7 @@ class Parser:
         self.consume(TT.SEMICOLON, "Expect ';' after 'for' condition.")
 
         increment = None
-        if not self.check(TT.SEMICOLON):
+        if not self.check(TT.RIGHT_PAREN):
             increment = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after 'for' clauses.")
 
@@ -171,9 +171,7 @@ class Parser:
         if increment:
             body = BlockStmt([body, ExpressionStmt(increment)])
 
-        if not condition:
-            condition = LiteralExpr(True)
-        body = WhileStmt(condition, body)
+        body = WhileStmt(condition if condition else LiteralExpr(True), body)
 
         if initializer:
             body = BlockStmt([initializer, body])
