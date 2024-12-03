@@ -4,6 +4,8 @@ from Token import TokenType as TT
 
 
 class Parser:
+    MAX_ARGS = 255
+
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.current = 0
@@ -31,7 +33,7 @@ class Parser:
     def assignment(self) -> Expr:
         expr = self.logic_or()
 
-        if self.match([TT.EQUAL]):
+        if self.match(TT.EQUAL):
             equals = self.previous()
             value = self.assignment()
 
@@ -46,7 +48,7 @@ class Parser:
     def logic_or(self) -> Expr:
         expr = self.logic_and()
 
-        while self.match([TT.OR]):
+        while self.match(TT.OR):
             operator = self.previous()
             right = self.logic_and()
             expr = LogicalExpr(expr, operator, right)
@@ -56,7 +58,7 @@ class Parser:
     def logic_and(self) -> Expr:
         expr = self.equality()
 
-        while self.match([TT.AND]):
+        while self.match(TT.AND):
             operator = self.previous()
             right = self.equality()
             expr = LogicalExpr(expr, operator, right)
@@ -66,7 +68,7 @@ class Parser:
     def equality(self) -> Expr:
         expr = self.comparison()
 
-        while self.match([TT.BANG_EQUAL, TT.EQUAL_EQUAL]):
+        while self.match(TT.BANG_EQUAL, TT.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
             expr = BinaryExpr(expr, operator, right)
@@ -76,7 +78,7 @@ class Parser:
     def comparison(self) -> Expr:
         expr = self.term()
 
-        while self.match([TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL]):
+        while self.match(TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL):
             operator = self.previous()
             right = self.term()
             expr = BinaryExpr(expr, operator, right)
@@ -86,7 +88,7 @@ class Parser:
     def term(self) -> Expr:
         expr = self.factor()
 
-        while self.match([TT.MINUS, TT.PLUS]):
+        while self.match(TT.MINUS, TT.PLUS):
             operator = self.previous()
             right = self.factor()
             expr = BinaryExpr(expr, operator, right)
@@ -96,7 +98,7 @@ class Parser:
     def factor(self) -> Expr:
         expr = self.unary()
 
-        while self.match([TT.SLASH, TT.STAR]):
+        while self.match(TT.SLASH, TT.STAR):
             operator = self.previous()
             right = self.unary()
             expr = BinaryExpr(expr, operator, right)
@@ -104,23 +106,48 @@ class Parser:
         return expr
 
     def unary(self) -> Expr:
-        if self.match([TT.BANG, TT.MINUS]):
+        if self.match(TT.BANG, TT.MINUS):
             operator = self.previous()
             right = self.unary()
             return UnaryExpr(operator, right)
 
-        return self.primary()
+        return self.call()
+
+    def call(self) -> Expr:
+        expr = self.primary()
+
+        while True:
+            if self.match(TT.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            else:
+                break
+
+        return expr
+
+    def finish_call(self, callee: Expr) -> Expr:
+        arguments = []
+
+        if not self.check(TT.RIGHT_PAREN):
+            while True:
+                if len(arguments) >= self.MAX_ARGS:
+                    self.error(self.peek(), f"Can't have more than {self.MAX_ARGS} arguments")
+                arguments.append(self.expression())
+                if not self.match(TT.COMMA): break
+
+        paren = self.consume(TT.RIGHT_PAREN, "Expect ')' after arguments.")
+
+        return CallExpr(callee, paren, arguments)
 
     def primary(self) -> Expr:
-        if self.match([TT.FALSE]): return LiteralExpr(False)
-        if self.match([TT.TRUE]): return LiteralExpr(True)
-        if self.match([TT.NIL]): return LiteralExpr(None)
+        if self.match(TT.FALSE): return LiteralExpr(False)
+        if self.match(TT.TRUE): return LiteralExpr(True)
+        if self.match(TT.NIL): return LiteralExpr(None)
 
-        if self.match([TT.NUMBER, TT.STRING]): return LiteralExpr(self.previous().literal)
+        if self.match(TT.NUMBER, TT.STRING): return LiteralExpr(self.previous().literal)
 
-        if self.match([TT.IDENTIFIER]): return VariableExpr(self.previous())
+        if self.match(TT.IDENTIFIER): return VariableExpr(self.previous())
 
-        if self.match([TT.LEFT_PAREN]):
+        if self.match(TT.LEFT_PAREN):
             expr = self.expression()
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return GroupingExpr(expr)
@@ -128,11 +155,11 @@ class Parser:
         raise self.error(self.peek(), "Expect expression.")
 
     def statement(self) -> Stmt:
-        if self.match([TT.FOR]): return self.for_statement()
-        if self.match([TT.IF]): return self.if_statement()
-        if self.match([TT.PRINT]): return self.print_statement()
-        if self.match([TT.WHILE]): return self.while_statement()
-        if self.match([TT.LEFT_BRACE]): return BlockStmt(self.block())
+        if self.match(TT.FOR): return self.for_statement()
+        if self.match(TT.IF): return self.if_statement()
+        if self.match(TT.PINT): return self.print_statement()
+        if self.match(TT.WHILE): return self.while_statement()
+        if self.match(TT.LEFT_BRACE): return BlockStmt(self.block())
 
         return self.expression_statement()
 
@@ -148,9 +175,9 @@ class Parser:
     def for_statement(self) -> Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'for'.")
 
-        if self.match([TT.SEMICOLON]):
+        if self.match(TT.SEMICOLON):
             initializer = None
-        elif self.match([TT.VAR]):
+        elif self.match(TT.VAR):
             initializer = self.var_declaration()
         else:
             initializer = self.expression_statement()
@@ -186,7 +213,7 @@ class Parser:
         thenBranch = self.statement()
         elseBranch = None
 
-        if self.match([TT.ELSE]):
+        if self.match(TT.ELSE):
             elseBranch = self.statement()
 
         return IfStmt(condition, thenBranch, elseBranch)
@@ -212,7 +239,7 @@ class Parser:
 
     def declaration(self) -> Stmt | None:
         try:
-            if self.match([TT.VAR]): return self.var_declaration()
+            if self.match(TT.VAR): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
@@ -221,13 +248,13 @@ class Parser:
     def var_declaration(self) -> Stmt:
         name = self.consume(TT.IDENTIFIER, "Expect variable name.")
 
-        initializer = None if not self.match([TT.EQUAL]) else self.expression()
+        initializer = None if not self.match(TT.EQUAL) else self.expression()
 
         self.consume(TT.SEMICOLON, "Expect ';' after variable declaration.")
         return VarStmt(name, initializer)
 
     # ----------- Helper methods ---------------
-    def match(self, t_types: list[TT]) -> bool:
+    def match(self, *t_types: TT) -> bool:
         """
         Advance if current Token is one of t_types.
         :param t_types: TokenTypes to check for.
