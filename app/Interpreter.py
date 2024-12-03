@@ -7,7 +7,11 @@ from Token import TokenType as TT
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+
+        from Clock import Clock
+        self.globals.define("clock", Clock())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):
         """
@@ -63,6 +67,25 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.environment = previous
 
     # -------- Expr Visitor methods ---------
+    def visit_call_expr(self, expr: "CallExpr"):
+        callee = self.evaluate(expr.callee)
+
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        from LoxCallable import LoxCallable
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
+
+        num_args = len(arguments)
+        arity = callee.arity()
+
+        if num_args != arity:
+            raise LoxRuntimeError(expr.paren, f"Expected {arity} arguments but got {num_args}.")
+
+        return callee.call(self, arguments)
+
     def visit_logical_expr(self, expr: "LogicalExpr"):
         left = self.evaluate(expr.left)
 

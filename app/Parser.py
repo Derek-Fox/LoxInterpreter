@@ -157,7 +157,7 @@ class Parser:
     def statement(self) -> Stmt:
         if self.match(TT.FOR): return self.for_statement()
         if self.match(TT.IF): return self.if_statement()
-        if self.match(TT.PINT): return self.print_statement()
+        if self.match(TT.PRINT): return self.print_statement()
         if self.match(TT.WHILE): return self.while_statement()
         if self.match(TT.LEFT_BRACE): return BlockStmt(self.block())
 
