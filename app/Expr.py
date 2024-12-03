@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Expr import AssignExpr, BinaryExpr, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr
+	from Expr import LogicalExpr, AssignExpr, BinaryExpr, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr
 class ExprVisitor(ABC):
+	@abstractmethod
+	def visit_logicalexpr(self, expr: "LogicalExpr"): pass
 	@abstractmethod
 	def visit_assignexpr(self, expr: "AssignExpr"): pass
 	@abstractmethod
@@ -21,6 +23,14 @@ class ExprVisitor(ABC):
 class Expr(ABC):
 	@abstractmethod
 	def accept(self, visitor: "ExprVisitor"): pass
+
+class LogicalExpr(Expr):
+	def __init__(self, left: "Expr", operator: "Token", right: "Expr", ):
+		self.left = left
+		self.operator = operator
+		self.right = right
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_logicalexpr(self)
 
 class AssignExpr(Expr):
 	def __init__(self, name: "Token", value: "Expr", ):

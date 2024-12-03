@@ -71,6 +71,7 @@ def define_stmt_class(output_dir):
 def define_expr_class(output_dir):
     base_class = "Expr"
     types = {
+        f'Logical{base_class}': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
         f'Assign{base_class}': [('name', 'Token'), ('value', 'Expr')],
         f'Binary{base_class}': [('left', 'Expr'), ('operator', 'Token'), ('right', 'Expr')],
         f'Grouping{base_class}': [('expression', 'Expr')],

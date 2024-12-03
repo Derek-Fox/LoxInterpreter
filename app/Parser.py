@@ -29,7 +29,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expr:
-        expr = self.equality()
+        expr = self.logic_or()
 
         if self.match([TT.EQUAL]):
             equals = self.previous()
@@ -40,6 +40,26 @@ class Parser:
                 return Assign(name, value)
 
             self.error(equals, "Invalid assignment target.")
+
+        return expr
+
+    def logic_or(self) -> Expr:
+        expr = self.logic_and()
+
+        while self.match([TT.OR]):
+            operator = self.previous()
+            right = self.logic_and()
+            expr = LogicalExpr(expr, operator, right)
+
+        return expr
+
+    def logic_and(self) -> Expr:
+        expr = self.equality()
+
+        while self.match([TT.AND]):
+            operator = self.previous()
+            right = self.equality()
+            expr = LogicalExpr(expr, operator, right)
 
         return expr
 
