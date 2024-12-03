@@ -35,9 +35,9 @@ class Parser:
             equals = self.previous()
             value = self.assignment()
 
-            if isinstance(expr, Variable):
+            if isinstance(expr, VariableExpr):
                 name = expr.name
-                return Assign(name, value)
+                return AssignExpr(name, value)
 
             self.error(equals, "Invalid assignment target.")
 
@@ -122,14 +122,15 @@ class Parser:
 
         if self.match([TT.LEFT_PAREN]):
             expr = self.expression()
-            self.consume(TT.RIGHT_PAREN, "Expected ')' after expression.")
+            self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return GroupingExpr(expr)
 
-        raise self.error(self.peek(), "Expected expression.")
+        raise self.error(self.peek(), "Expect expression.")
 
     def statement(self) -> Stmt:
         if self.match([TT.IF]): return self.if_statement()
         if self.match([TT.PRINT]): return self.print_statement()
+        if self.match([TT.WHILE]): return self.while_statement()
         if self.match([TT.LEFT_BRACE]): return BlockStmt(self.block())
 
         return self.expression_statement()
@@ -146,7 +147,7 @@ class Parser:
     def if_statement(self) -> Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'if'.")
         condition = self.expression()
-        self.consume(TT.RIGHT_PAREN, "Expect ')' after 'if'.")
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after 'if' condition.")
 
         thenBranch = self.statement()
         elseBranch = None
@@ -155,6 +156,15 @@ class Parser:
             elseBranch = self.statement()
 
         return IfStmt(condition, thenBranch, elseBranch)
+
+    def while_statement(self) -> Stmt:
+        self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after 'while' condition.")
+
+        body = self.statement()
+
+        return WhileStmt(condition, body)
 
     def print_statement(self) -> Stmt:
         value = self.expression()
@@ -175,7 +185,7 @@ class Parser:
             return None
 
     def var_declaration(self) -> Stmt:
-        name = self.consume(TT.IDENTIFIER, "Expected variable name.")
+        name = self.consume(TT.IDENTIFIER, "Expect variable name.")
 
         initializer = None if not self.match([TT.EQUAL]) else self.expression()
 

@@ -24,25 +24,30 @@ class Interpreter(ExprVisitor, StmtVisitor):
             Lox.runtime_error(error)
 
     # --------- Stmt Visitor Methods ---------
-    def visit_blockstmt(self, stmt: "BlockStmt"):
+    def visit_block_stmt(self, stmt: "BlockStmt"):
         self.execute_block(stmt.statements, Environment(self.environment))
 
-    def visit_expressionstmt(self, stmt: "ExpressionStmt"):
+    def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         return self.evaluate(stmt.expression)  # return the value here so it can be printed when in REPL
 
-    def visit_printstmt(self, stmt: "PrintStmt"):
+    def visit_print_stmt(self, stmt: "PrintStmt"):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
 
-    def visit_varstmt(self, stmt: "VarStmt"):
+    def visit_var_stmt(self, stmt: "VarStmt"):
         initializer = stmt.initializer
         value = None if initializer is None else self.evaluate(initializer)
 
         self.environment.define(stmt.name.lexeme, value)
 
-    def visit_ifstmt(self, stmt: "IfStmt"):
-        if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.thenBranch)
-        elif stmt.elseBranch: self.execute(stmt.elseBranch)
+    def visit_if_stmt(self, stmt: "IfStmt"):
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch:
+            self.execute(stmt.elseBranch)
+
+    def visit_while_stmt(self, stmt: "WhileStmt"):
+        while self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.body)
 
     def execute(self, stmt: Stmt):
         return stmt.accept(self)
@@ -58,7 +63,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.environment = previous
 
     # -------- Expr Visitor methods ---------
-    def visit_logicalexpr(self, expr: "LogicalExpr"):
+    def visit_logical_expr(self, expr: "LogicalExpr"):
         left = self.evaluate(expr.left)
 
         # attempt to short circuit
@@ -67,14 +72,14 @@ class Interpreter(ExprVisitor, StmtVisitor):
         else:
             if not self.is_truthy(left): return left  # for AND, if first is false, return it
 
-        return self.evaluate(expr.right)  # have to evaluate the second operand
+        return self.evaluate(expr.right)  # have to evaluate the second operand_
 
-    def visit_assignexpr(self, expr: "AssignExpr"):
+    def visit_assign_expr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
 
-    def visit_binaryexpr(self, expr: "BinaryExpr"):
+    def visit_binary_expr(self, expr: "BinaryExpr"):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
@@ -112,13 +117,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
             case TT.BANG_EQUAL:
                 return left != right
 
-    def visit_groupingexpr(self, expr: "GroupingExpr"):
+    def visit_grouping_expr(self, expr: "GroupingExpr"):
         return self.evaluate(expr.expr)
 
-    def visit_literalexpr(self, expr: "LiteralExpr"):
+    def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
 
-    def visit_unaryexpr(self, expr: "UnaryExpr"):
+    def visit_unary_expr(self, expr: "UnaryExpr"):
         right = self.evaluate(expr.right)
 
         if expr.operator.t_type == TT.MINUS:
@@ -127,7 +132,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         elif expr.operator.t_type == TT.BANG:
             return not self.is_truthy(right)
 
-    def visit_variableexpr(self, expr: "VariableExpr"):
+    def visit_variable_expr(self, expr: "VariableExpr"):
         return self.environment.get(expr.name)
 
     def evaluate(self, expr: Expr) -> object:
