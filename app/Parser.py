@@ -158,6 +158,7 @@ class Parser:
         if self.match(TT.FOR): return self.for_statement()
         if self.match(TT.IF): return self.if_statement()
         if self.match(TT.PRINT): return self.print_statement()
+        if self.match(TT.RETURN): return self.return_statement()
         if self.match(TT.WHILE): return self.while_statement()
         if self.match(TT.LEFT_BRACE): return BlockStmt(self.block())
 
@@ -218,6 +219,21 @@ class Parser:
 
         return IfStmt(condition, thenBranch, elseBranch)
 
+    def print_statement(self) -> PrintStmt:
+        value = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after value.")
+        return PrintStmt(value)
+
+    def return_statement(self) -> ReturnStmt:
+        keyword = self.previous()
+        value = None
+
+        if not self.check(TT.SEMICOLON):
+            value = self.expression()
+
+        self.consume(TT.SEMICOLON, "Expect ';' after return value.")
+        return ReturnStmt(keyword, value)
+
     def while_statement(self) -> WhileStmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")
         condition = self.expression()
@@ -226,11 +242,6 @@ class Parser:
         body = self.statement()
 
         return WhileStmt(condition, body)
-
-    def print_statement(self) -> PrintStmt:
-        value = self.expression()
-        self.consume(TT.SEMICOLON, "Expect ';' after value.")
-        return PrintStmt(value)
 
     def expression_statement(self) -> ExpressionStmt:
         expr = self.expression()

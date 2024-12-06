@@ -4,6 +4,7 @@ from LoxRuntimeError import LoxRuntimeError
 from Stmt import *
 from Token import TokenType as TT
 from LoxFunction import LoxFunction
+from Return import Return
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -36,7 +37,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         return self.evaluate(stmt.expression)  # return the value here so it can be printed when in REPL
 
     def visit_function_stmt(self, stmt: "FunctionStmt"):
-        function = LoxFunction(stmt)
+        function = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
 
     def visit_print_stmt(self, stmt: "PrintStmt"):
@@ -54,6 +55,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.execute(stmt.thenBranch)
         elif stmt.elseBranch:
             self.execute(stmt.elseBranch)
+
+    def visit_return_stmt(self, stmt: "ReturnStmt"):
+        value = None
+        if stmt.value:
+            value = self.evaluate(stmt.value)
+
+        raise Return(value)
 
     def visit_while_stmt(self, stmt: "WhileStmt"):
         while self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.body)

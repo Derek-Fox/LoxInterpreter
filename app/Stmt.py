@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt, PrintStmt, VarStmt, WhileStmt
+	from Stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt, PrintStmt, ReturnStmt, VarStmt, WhileStmt
 class StmtVisitor(ABC):
 	@abstractmethod
 	def visit_block_stmt(self, stmt: "BlockStmt"): pass
@@ -15,6 +15,8 @@ class StmtVisitor(ABC):
 	def visit_if_stmt(self, stmt: "IfStmt"): pass
 	@abstractmethod
 	def visit_print_stmt(self, stmt: "PrintStmt"): pass
+	@abstractmethod
+	def visit_return_stmt(self, stmt: "ReturnStmt"): pass
 	@abstractmethod
 	def visit_var_stmt(self, stmt: "VarStmt"): pass
 	@abstractmethod
@@ -57,6 +59,13 @@ class PrintStmt(Stmt):
 		self.expression = expression
 	def accept(self, visitor: "StmtVisitor"):
 		return visitor.visit_print_stmt(self)
+
+class ReturnStmt(Stmt):
+	def __init__(self, keyword: "Token", value: "Expr", ):
+		self.keyword = keyword
+		self.value = value
+	def accept(self, visitor: "StmtVisitor"):
+		return visitor.visit_return_stmt(self)
 
 class VarStmt(Stmt):
 	def __init__(self, name: "Token", initializer: "Expr", ):
