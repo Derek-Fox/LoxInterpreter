@@ -63,6 +63,7 @@ def define_stmt_classes(output_dir):
     types = {
         'Block': {'statements': 'list[Stmt]'},
         'Expression': {'expression': 'Expr'},
+        'Function': {'name': 'Token', 'params': 'list[Token]', 'body': 'list[Stmt]'},
         'If': {'condition': 'Expr', 'thenBranch': 'Stmt', 'elseBranch': 'Stmt'},
         'Print': {'expression': 'Expr'},
         'Var': {'name': 'Token', 'initializer': 'Expr'},
