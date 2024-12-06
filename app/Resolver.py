@@ -92,7 +92,11 @@ class Resolver(ExprVisitor, StmtVisitor):
     def declare(self, name: "Token"):
         if not self.scopes: return
 
-        self.scopes[-1][name.lexeme] = False
+        scope = self.scopes[-1]
+        if name.lexeme in scope:
+            self.error(name, "Already a variable with this name in this scope.")
+
+        scope[name.lexeme] = False
 
     def define(self, name: "Token"):
         if not self.scopes: return

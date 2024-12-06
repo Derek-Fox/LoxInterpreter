@@ -49,3 +49,16 @@ class Environment:
         if self.enclosing: return self.enclosing.get(name)
 
         raise LoxRuntimeError(name, f"Undefined variable '{lexeme}'.")
+
+    def get_at(self, distance: int, name: str) -> object:
+        return self.ancestor(distance).values.get(name)
+
+    def assign_at(self, distance: int, name: Token, value: object):
+        self.ancestor(distance).values[name.lexeme] = value
+
+    def ancestor(self, distance: int) -> "Environment":
+        environment = self
+        for _ in range(distance):
+            environment = environment.enclosing
+
+        return environment

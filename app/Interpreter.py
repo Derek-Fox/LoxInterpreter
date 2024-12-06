@@ -11,6 +11,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.globals = Environment()
         self.environment = self.globals
+        self.locals: dict[Expr, int] = {}
 
         from Clock import Clock
         self.globals.define("clock", Clock())
@@ -112,7 +113,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_assign_expr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+
+        distance = self.locals.get(expr)
+        if distance:
+            self.environment.assign_at(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
+
         return value
 
     def visit_binary_expr(self, expr: "BinaryExpr"):
@@ -169,7 +176,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return not self.is_truthy(right)
 
     def visit_variable_expr(self, expr: "VariableExpr"):
-        return self.environment.get(expr.name)
+        return self.look_up_variable(expr.name, expr)
 
     def evaluate(self, expr: Expr) -> object:
         return expr.accept(self)
@@ -223,3 +230,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
         if isinstance(obj, bool):
             return str(obj).lower()  # why does python have capitalized bools??
         return str(obj)
+
+    def resolve(self, expr: Expr, depth: int):
+        self.locals[expr] = depth
+
+    def look_up_variable(self, name: Token, expr: Expr) -> object:
+        distance = self.locals.get(expr)
+        if distance:
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
