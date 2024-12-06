@@ -205,7 +205,7 @@ class Parser:
 
         return body
 
-    def if_statement(self) -> Stmt:
+    def if_statement(self) -> IfStmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'if'.")
         condition = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after 'if' condition.")
@@ -218,7 +218,7 @@ class Parser:
 
         return IfStmt(condition, thenBranch, elseBranch)
 
-    def while_statement(self) -> Stmt:
+    def while_statement(self) -> WhileStmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")
         condition = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after 'while' condition.")
@@ -227,25 +227,44 @@ class Parser:
 
         return WhileStmt(condition, body)
 
-    def print_statement(self) -> Stmt:
+    def print_statement(self) -> PrintStmt:
         value = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after value.")
         return PrintStmt(value)
 
-    def expression_statement(self) -> Stmt:
+    def expression_statement(self) -> ExpressionStmt:
         expr = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after expression.")
         return ExpressionStmt(expr)
 
     def declaration(self) -> Stmt | None:
         try:
+            if self.match(TT.FUN): return self.function("function")
             if self.match(TT.VAR): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
             return None
 
-    def var_declaration(self) -> Stmt:
+    def function(self, kind: str) -> FunctionStmt:
+        name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
+
+        self.consume(TT.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters = []
+        if not self.check(TT.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters.")
+                parameters.append(self.consume(TT.IDENTIFIER, "Expect parameter name."))
+                if not self.match(TT.COMMA): break
+        self.consume(TT.RIGHT_PAREN, f"Expect ')' after {kind} parameters.")
+
+        self.consume(TT.LEFT_BRACE, f"Expect '{{' before {kind} body.")
+        body = self.block()
+
+        return FunctionStmt(name, parameters, body)
+
+    def var_declaration(self) -> VarStmt:
         name = self.consume(TT.IDENTIFIER, "Expect variable name.")
 
         initializer = None if not self.match(TT.EQUAL) else self.expression()
