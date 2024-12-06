@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from Interpreter import Interpreter
-
 
 class LoxCallable(ABC):
     @abstractmethod
@@ -9,6 +7,6 @@ class LoxCallable(ABC):
         pass
 
     @abstractmethod
-    def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
         """Call the LoxCallable with the given arguments. Uses the global environment of the passed interpreter."""
         pass

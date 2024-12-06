@@ -3,6 +3,7 @@ from Expr import *
 from LoxRuntimeError import LoxRuntimeError
 from Stmt import *
 from Token import TokenType as TT
+from LoxFunction import LoxFunction
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -33,6 +34,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         return self.evaluate(stmt.expression)  # return the value here so it can be printed when in REPL
+
+    def visit_function_stmt(self, stmt: "FunctionStmt"):
+        function = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
 
     def visit_print_stmt(self, stmt: "PrintStmt"):
         value = self.evaluate(stmt.expression)

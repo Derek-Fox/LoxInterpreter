@@ -1,6 +1,5 @@
 from Stmt import FunctionStmt
 from LoxCallable import LoxCallable
-from Interpreter import Interpreter
 from Environment import Environment
 
 
@@ -11,7 +10,8 @@ class LoxFunction(LoxCallable):
     def arity(self) -> int:
         return len(self.declaration.params)
 
-    def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
+        from Interpreter import Interpreter
         environment = Environment(interpreter.globals)
 
         for param, arg in zip(self.declaration.params, arguments):
