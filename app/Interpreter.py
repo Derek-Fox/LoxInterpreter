@@ -10,6 +10,7 @@ from Return import Return
 from LoxClass import LoxClass
 from LoxInstance import LoxInstance
 from LoxFunction import LoxFunction
+from NativeFunctions import *
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -17,9 +18,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.globals = Environment()
         self.environment = self.globals
         self.locals: dict[Expr, int] = {}
+        self.define_native_functions()
 
-        from Clock import Clock
+    def define_native_functions(self):
         self.globals.define("clock", Clock())
+        self.globals.define("readInput", ReadInput())
+        self.globals.define("sleep", Sleep())
+        self.globals.define("typeConvert", TypeConvert())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):
         """
@@ -128,7 +133,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
         if num_args != arity:
             raise LoxRuntimeError(expr.paren, f"Expected {arity} arguments but got {num_args}.")
 
-        return callee.call(self, arguments)
+        try:
+            retval = callee.call(self, arguments)
+            return retval
+        except LoxRuntimeError as call_error:
+            raise LoxRuntimeError(expr.paren, call_error.message)
+
 
     def visit_logical_expr(self, expr: "LogicalExpr"):
         left = self.evaluate(expr.left)
@@ -199,7 +209,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         raise LoxRuntimeError(expr.name, "Only instances have properties.")
 
     def visit_grouping_expr(self, expr: "GroupingExpr"):
-        return self.evaluate(expr.expr)
+        return self.evaluate(expr.expression)
 
     def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
@@ -248,7 +258,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
     @classmethod
     def is_truthy(cls, obj: object) -> bool:
         """
-        Check if obj is truthy. Only None and False are falsey.
+        Check if obj is truthy. Only nil and false are falsey.
         :param obj: object to test
         :return: True or False
         """

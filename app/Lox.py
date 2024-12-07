@@ -100,5 +100,5 @@ class Lox:
         Report runtime error to Lox.
         :param error: LoxRuntimeError
         """
-        print(f'{error.message}\n[line {error.token.line}]')
+        print(f'LoxRuntimeError: {error.message} [line {error.token.line}] ')
         Lox.had_runtime_error = True
