@@ -20,7 +20,7 @@ class ClassType(Enum):
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
-        self.scopes: list[dict] = []
+        self.scopes: list[dict[str, bool]] = []
         self.current_function = FunctionType.NONE
         self.current_class = ClassType.NONE
 
@@ -40,16 +40,23 @@ class Resolver(ExprVisitor, StmtVisitor):
         if stmt.superclass:
             if stmt.name.lexeme == stmt.superclass.name.lexeme:
                 self.error(stmt.superclass.name, "A class can't inherit from itself.")
+
             self.resolve(stmt.superclass)
 
-        self.begin_scope()
-        self.scopes[-1]['this'] = True
+            self.begin_scope()  # scope to look up 'super' keyword
+            self.peek_scope()["super"] = True
+
+        self.begin_scope()  # scope to look up 'this' keyword
+        self.peek_scope()['this'] = True
 
         for method in stmt.methods:
             declaration = FunctionType.INITIALIZER if method.name.lexeme == "init" else FunctionType.METHOD
             self.resolve_function(method, declaration)
 
-        self.end_scope()
+        self.end_scope()  # end 'this' scope
+
+        if stmt.superclass: self.end_scope()  # end 'super' scope
+
         self.current_class = enclosing_class
 
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
@@ -123,6 +130,9 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(expr.value)
         self.resolve(expr.object)
 
+    def visit_super_expr(self, expr: "SuperExpr"):
+        self.resolve_local(expr, expr.keyword)
+
     def visit_this_expr(self, expr: "ThisExpr"):
         if self.current_class == ClassType.NONE:
             self.error(expr.keyword, "Can't use 'this' outside of a class.")
@@ -134,7 +144,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(expr.right)
 
     def visit_variable_expr(self, expr: "VariableExpr"):
-        if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
+        if self.scopes and self.peek_scope().get(expr.name.lexeme) is False:
             self.error(expr.name, "Can't read local variable in its own initializer.")
 
         self.resolve_local(expr, expr.name)
@@ -155,7 +165,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         """
         if not self.scopes: return
 
-        scope = self.scopes[-1]
+        scope = self.peek_scope()
         if name.lexeme in scope:
             self.error(name, "Already a variable with this name in this scope.")
 
@@ -168,7 +178,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         """
         if not self.scopes: return
 
-        self.scopes[-1][name.lexeme] = True
+        self.peek_scope()[name.lexeme] = True
 
     def resolve_local(self, expr: "Expr", name: "Token"):
         """
@@ -210,6 +220,13 @@ class Resolver(ExprVisitor, StmtVisitor):
         Pop a scope from the stack.
         """
         self.scopes.pop()
+
+    def peek_scope(self) -> dict[str, bool]:
+        """
+        Peek at top of scope stack.
+        :return: topmost scope (which is a dict of str -> bool)
+        """
+        return self.scopes[-1]
 
     @classmethod
     def error(cls, token: "Token", message: str):

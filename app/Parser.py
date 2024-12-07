@@ -148,6 +148,12 @@ class Parser:
         if self.match(TT.THIS): return ThisExpr(self.previous())
         if self.match(TT.IDENTIFIER): return VariableExpr(self.previous())
 
+        if self.match(TT.SUPER):
+            keyword = self.previous()
+            self.consume(TT.DOT, "Expect '.' after 'super'.")
+            method = self.consume(TT.IDENTIFIER, "Expect superclass method name.")
+            return SuperExpr(keyword, method)
+
         if self.match(TT.LEFT_PAREN):
             expr = self.expression()
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")

@@ -1,3 +1,5 @@
+from typing import Dict
+
 from Environment import Environment
 from Expr import *
 from LoxRuntimeError import LoxRuntimeError
@@ -7,6 +9,7 @@ from LoxFunction import LoxFunction
 from Return import Return
 from LoxClass import LoxClass
 from LoxInstance import LoxInstance
+from LoxFunction import LoxFunction
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -45,12 +48,19 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
         self.environment.define(stmt.name.lexeme, None)
 
-        methods = {}
-        for method in stmt.methods:
-            function = LoxFunction(method, self.environment, method.name.lexeme == 'init')
-            methods[method.name.lexeme] = function
+        if stmt.superclass:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
+
+        methods = {
+            method.name.lexeme: LoxFunction(method, self.environment, method.name.lexeme == 'init')
+            for method in stmt.methods
+        }
 
         l_class = LoxClass(stmt.name.lexeme, superclass, methods)
+
+        if stmt.superclass:
+            self.environment = self.environment.enclosing
 
         self.environment.assign(stmt.name, l_class)
 
@@ -203,6 +213,18 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(expr.value)
         obj.set(expr.name, value)
         return value
+
+    def visit_super_expr(self, expr: "SuperExpr"):
+        distance = self.locals.get(expr)
+        superclass: LoxClass = self.environment.get_at(distance, "super")
+
+        obj: LoxInstance = self.environment.get_at(distance - 1, "this")  # get current instance
+
+        method = superclass.find_method(expr.method.lexeme)
+
+        if not method:
+            raise LoxRuntimeError(expr.method, f"Undefined property '{expr.method.lexeme}'.")
+        return method.bind(obj)
 
     def visit_this_expr(self, expr: "ThisExpr"):
         return self.look_up_variable(expr.keyword, expr)
