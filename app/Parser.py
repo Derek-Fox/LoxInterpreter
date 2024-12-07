@@ -248,12 +248,25 @@ class Parser:
 
     def declaration(self) -> Stmt | None:
         try:
+            if self.match(TT.CLASS): return self.class_declaration()
             if self.match(TT.FUN): return self.function("function")
             if self.match(TT.VAR): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
             return None
+
+    def class_declaration(self):
+        name = self.consume(TT.IDENTIFIER, "Expect class name.")
+        self.consume(TT.LEFT_BRACE, "Expect '{' before class body.")
+
+        methods = []
+        while not self.check(TT.RIGHT_BRACE) and not self.is_at_end():
+            methods.append(self.function("method"))
+
+        self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
+
+        return ClassStmt(name, methods)
 
     def function(self, kind: str) -> FunctionStmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')

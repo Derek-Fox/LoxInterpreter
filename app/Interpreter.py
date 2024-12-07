@@ -5,6 +5,7 @@ from Stmt import *
 from Token import TokenType as TT
 from LoxFunction import LoxFunction
 from Return import Return
+from LoxClass import LoxClass
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -33,6 +34,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
     # --------- Stmt Visitor Methods ---------
     def visit_block_stmt(self, stmt: "BlockStmt"):
         self.execute_block(stmt.statements, Environment(self.environment))
+
+    def visit_class_stmt(self, stmt: "ClassStmt"):
+        self.environment.define(stmt.name.lexeme, None)
+        l_class = LoxClass(stmt.name.lexeme)
+        self.environment.assign(stmt.name, l_class)
 
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         return self.evaluate(stmt.expression)  # return the value here so it can be printed when in REPL
