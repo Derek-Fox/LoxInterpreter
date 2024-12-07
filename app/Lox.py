@@ -1,12 +1,9 @@
 import sys
 
 from Interpreter import Interpreter
-from LoxRuntimeError import LoxRuntimeError
 from Parser import Parser
 from Resolver import Resolver
 from Scanner import Scanner
-from Token import Token, TokenType as TT
-
 
 class Lox:
     interpreter = Interpreter()
@@ -74,17 +71,18 @@ class Lox:
         cls.report(line, "", message)
 
     @classmethod
-    def error_token(cls, token: Token, message: str):
+    def error_token(cls, token: "Token", message: str):
         """
         Report error at given token to Lox.
         :param token: Token where error occurred
         :param message: Error message
         """
+        from Token import TokenType as TT
         where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
         cls.report(token.line, where, message)
 
     @classmethod
-    def report(cls, line: int, where, message: str):
+    def report(cls, line: int, where: str, message: str):
         """
         Report error to the user.
         :param line: Line where error occurred
@@ -95,10 +93,10 @@ class Lox:
         Lox.had_error = True
 
     @classmethod
-    def runtime_error(cls, error: LoxRuntimeError):
+    def runtime_error(cls, error: "LoxRuntimeError"):
         """
         Report runtime error to Lox.
         :param error: LoxRuntimeError
         """
-        print(f'LoxRuntimeError: {error.message} [line {error.token.line}] ')
+        print(f'[line {error.token.line}] LoxRuntimeError: {error.message}', file=sys.stderr)
         Lox.had_runtime_error = True
