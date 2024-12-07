@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Expr import AssignExpr, BinaryExpr, CallExpr, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, UnaryExpr, VariableExpr
+	from Expr import AssignExpr, BinaryExpr, CallExpr, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, ThisExpr, UnaryExpr, VariableExpr
 class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_assign_expr(self, expr: "AssignExpr"): pass
@@ -21,6 +21,8 @@ class ExprVisitor(ABC):
 	def visit_logical_expr(self, expr: "LogicalExpr"): pass
 	@abstractmethod
 	def visit_set_expr(self, expr: "SetExpr"): pass
+	@abstractmethod
+	def visit_this_expr(self, expr: "ThisExpr"): pass
 	@abstractmethod
 	def visit_unary_expr(self, expr: "UnaryExpr"): pass
 	@abstractmethod
@@ -87,6 +89,12 @@ class SetExpr(Expr):
 		self.value = value
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_set_expr(self)
+
+class ThisExpr(Expr):
+	def __init__(self, keyword: "Token", ):
+		self.keyword = keyword
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_this_expr(self)
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: "Token", right: "Expr", ):

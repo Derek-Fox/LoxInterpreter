@@ -144,9 +144,8 @@ class Parser:
         if self.match(TT.FALSE): return LiteralExpr(False)
         if self.match(TT.TRUE): return LiteralExpr(True)
         if self.match(TT.NIL): return LiteralExpr(None)
-
         if self.match(TT.NUMBER, TT.STRING): return LiteralExpr(self.previous().literal)
-
+        if self.match(TT.THIS): return ThisExpr(self.previous())
         if self.match(TT.IDENTIFIER): return VariableExpr(self.previous())
 
         if self.match(TT.LEFT_PAREN):
@@ -262,6 +261,12 @@ class Parser:
 
     def class_declaration(self):
         name = self.consume(TT.IDENTIFIER, "Expect class name.")
+
+        superclass = None
+        if self.match(TT.LESS):
+            self.consume(TT.IDENTIFIER, "Expect superclass name.")
+            superclass = VariableExpr(self.previous())
+
         self.consume(TT.LEFT_BRACE, "Expect '{' before class body.")
 
         methods = []
@@ -270,7 +275,7 @@ class Parser:
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
 
-        return ClassStmt(name, methods)
+        return ClassStmt(name, superclass, methods)
 
     def function(self, kind: str) -> FunctionStmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')

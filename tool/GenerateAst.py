@@ -62,7 +62,7 @@ def define_stmt_classes(output_dir):
     base_class = 'Stmt'
     types = {
         'Block': {'statements': 'list[Stmt]'},
-        'Class': {'name': 'Token', 'methods': 'list[FunctionStmt]'},
+        'Class': {'name': 'Token', 'superclass': 'VariableExpr', 'methods': 'list[FunctionStmt]'},
         'Expression': {'expression': 'Expr'},
         'Function': {'name': 'Token', 'params': 'list[Token]', 'body': 'list[Stmt]'},
         'If': {'condition': 'Expr', 'thenBranch': 'Stmt', 'elseBranch': 'Stmt'},
@@ -85,6 +85,7 @@ def define_expr_classes(output_dir):
         'Literal': {'value': 'object'},
         'Logical': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
         'Set': {'object': 'Expr', 'name': 'Token', 'value': 'Expr'},
+        'This': {'keyword': 'Token'},
         'Unary': {'operator': 'Token', 'right': 'Expr'},
         'Variable': {'name': 'Token'}
     }

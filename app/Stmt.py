@@ -35,8 +35,9 @@ class BlockStmt(Stmt):
 		return visitor.visit_block_stmt(self)
 
 class ClassStmt(Stmt):
-	def __init__(self, name: "Token", methods: "list[FunctionStmt]", ):
+	def __init__(self, name: "Token", superclass: "VariableExpr", methods: "list[FunctionStmt]", ):
 		self.name = name
+		self.superclass = superclass
 		self.methods = methods
 	def accept(self, visitor: "StmtVisitor"):
 		return visitor.visit_class_stmt(self)

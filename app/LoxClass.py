@@ -1,6 +1,7 @@
 from LoxCallable import LoxCallable
 from LoxFunction import LoxFunction
 
+
 class LoxClass(LoxCallable):
     def __init__(self, name: str, methods: dict[str, LoxFunction]):
         self.name = name
@@ -12,10 +13,16 @@ class LoxClass(LoxCallable):
     def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
         from LoxInstance import LoxInstance
         instance = LoxInstance(self)
+
+        initializer = self.find_method("init")
+        if initializer:
+            initializer.bind(instance).call(interpreter, arguments)
+
         return instance
 
     def arity(self) -> int:
-        return 0
+        initializer = self.find_method("init")
+        return 0 if not initializer else initializer.arity()
 
     def __repr__(self) -> str:
         return f'<class {self.name}>'

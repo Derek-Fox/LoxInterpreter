@@ -41,7 +41,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
         methods = {}
         for method in stmt.methods:
-            function = LoxFunction(method, self.environment)
+            function = LoxFunction(method, self.environment, method.name.lexeme == 'init')
             methods[method.name.lexeme] = function
 
         l_class = LoxClass(stmt.name.lexeme, methods)
@@ -196,6 +196,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(expr.value)
         obj.set(expr.name, value)
         return value
+
+    def visit_this_expr(self, expr: "ThisExpr"):
+        return self.look_up_variable(expr.keyword, expr)
 
     def visit_unary_expr(self, expr: "UnaryExpr"):
         right = self.evaluate(expr.right)

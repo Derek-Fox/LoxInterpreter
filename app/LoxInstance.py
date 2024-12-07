@@ -13,7 +13,7 @@ class LoxInstance:
             return self.fields[name.lexeme]
 
         method = self.l_class.find_method(name.lexeme)
-        if method: return method
+        if method: return method.bind(self)
 
         raise LoxRuntimeError(name, f"Undefined property {name.lexeme}.")
 

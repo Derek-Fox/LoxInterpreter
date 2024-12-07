@@ -8,7 +8,13 @@ from Stmt import *
 class FunctionType(Enum):
     NONE = auto(),
     FUNCTION = auto(),
+    INITIALIZER = auto(),
     METHOD = auto()
+
+
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
@@ -16,6 +22,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.interpreter = interpreter
         self.scopes: list[dict] = []
         self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
 
     # -------- Stmt Visitor methods -------
     def visit_block_stmt(self, stmt: "BlockStmt"):
@@ -24,12 +31,21 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.end_scope()
 
     def visit_class_stmt(self, stmt: "ClassStmt"):
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+
         self.declare(stmt.name)
         self.define(stmt.name)
 
+        self.begin_scope()
+        self.scopes[-1]['this'] = True
+
         for method in stmt.methods:
-            declaration = FunctionType.METHOD
+            declaration = FunctionType.INITIALIZER if method.name.lexeme == "init" else FunctionType.METHOD
             self.resolve_function(method, declaration)
+
+        self.end_scope()
+        self.current_class = enclosing_class
 
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         self.resolve(stmt.expression)
@@ -52,7 +68,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         if self.current_function == FunctionType.NONE:
             self.error(stmt.keyword, "Can't return when not in a function.")
 
-        if stmt.value: self.resolve(stmt.value)
+        if stmt.value:
+            if self.current_function == FunctionType.INITIALIZER:
+                self.error(stmt.keyword, "Can't return a value from an initializer.")
+
+            self.resolve(stmt.value)
 
     def visit_var_stmt(self, stmt: "VarStmt"):
         self.declare(stmt.name)
@@ -97,6 +117,13 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_set_expr(self, expr: "SetExpr"):
         self.resolve(expr.value)
         self.resolve(expr.object)
+
+    def visit_this_expr(self, expr: "ThisExpr"):
+        if self.current_class == ClassType.NONE:
+            self.error(expr.keyword, "Can't use 'this' outside of a class.")
+            return
+
+        self.resolve_local(expr, expr.keyword)
 
     def visit_unary_expr(self, expr: "UnaryExpr"):
         self.resolve(expr.right)
