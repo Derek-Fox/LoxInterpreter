@@ -1,7 +1,8 @@
-from Expr import *
-from Stmt import *
-from Interpreter import Interpreter
 from enum import Enum, auto
+
+from Expr import *
+from Interpreter import Interpreter
+from Stmt import *
 
 
 class FunctionType(Enum):
