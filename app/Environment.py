@@ -51,12 +51,29 @@ class Environment:
         raise LoxRuntimeError(name, f"Undefined variable '{lexeme}'.")
 
     def get_at(self, distance: int, name: str) -> object:
+        """
+        Get the value of a variable which is a certain depth in the environment hierarchy.
+        :param distance: Depth of target variable in environment hierarchy
+        :param name: Variable name (lexeme)
+        :return: The variable's value
+        """
         return self.ancestor(distance).values.get(name)
 
     def assign_at(self, distance: int, name: Token, value: object):
+        """
+        Assign a value to a variable which is a certain depth in the environment hierarchy.
+        :param distance: Depth of target variable in environment hierarchy
+        :param name: Variable name (lexeme)
+        :param value: New value for the variable
+        """
         self.ancestor(distance).values[name.lexeme] = value
 
     def ancestor(self, distance: int) -> "Environment":
+        """
+        Find the ancestor of the environment a given number of steps away.
+        :param distance: Depth to walk in environment hierarchy
+        :return: Ancestor environment
+        """
         environment = self
         for _ in range(distance):
             environment = environment.enclosing

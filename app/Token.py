@@ -62,4 +62,4 @@ class Token:
         self.line = line
 
     def __repr__(self):
-        return f'{self.t_type} {self.lexeme} {"null" if self.literal is None else self.literal}'
+        return f'{self.t_type} {self.lexeme} {"nil" if self.literal is None else self.literal}'

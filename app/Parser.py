@@ -4,7 +4,7 @@ from Token import TokenType as TT
 
 
 class Parser:
-    MAX_ARGS = 255
+    MAX_FUNC_ARGS = 255
 
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -25,8 +25,6 @@ class Parser:
         return statements
 
     # ---------- Methods for CFG productions -------------
-    # No doc comments because they would get very repetitive.
-    # Basically, each method corresponds to a production in the Context-Free Grammar
     def expression(self) -> Expr:
         return self.assignment()
 
@@ -129,8 +127,8 @@ class Parser:
 
         if not self.check(TT.RIGHT_PAREN):
             while True:
-                if len(arguments) >= self.MAX_ARGS:
-                    self.error(self.peek(), f"Can't have more than {self.MAX_ARGS} arguments")
+                if len(arguments) >= self.MAX_FUNC_ARGS:
+                    self.error(self.peek(), f"Can't have more than {self.MAX_FUNC_ARGS} arguments")
                 arguments.append(self.expression())
                 if not self.match(TT.COMMA): break
 

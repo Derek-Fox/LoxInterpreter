@@ -76,12 +76,12 @@ def define_stmt_classes(output_dir):
 def define_expr_classes(output_dir):
     base_class = "Expr"
     types = {
-        'Call': {'callee': 'Expr', 'paren': 'Token', 'arguments': 'list[Expr]'},
-        'Logical': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
         'Assign': {'name': 'Token', 'value': 'Expr'},
         'Binary': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
+        'Call': {'callee': 'Expr', 'paren': 'Token', 'arguments': 'list[Expr]'},
         'Grouping': {'expression': 'Expr'},
         'Literal': {'value': 'object'},
+        'Logical': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
         'Unary': {'operator': 'Token', 'right': 'Expr'},
         'Variable': {'name': 'Token'}
     }

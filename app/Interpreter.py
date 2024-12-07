@@ -232,9 +232,19 @@ class Interpreter(ExprVisitor, StmtVisitor):
         return str(obj)
 
     def resolve(self, expr: Expr, depth: int):
+        """
+        Mark the resolution depth for a given expr, for use when looking up variable exprs.
+        :param expr: Expression to resolve depth of
+        :param depth: how many environments deep is the expr
+        """
         self.locals[expr] = depth
 
     def look_up_variable(self, name: Token, expr: Expr) -> object:
+        """
+        Look up variable in environment hierarchy.
+        :param name: Variable name Token to look for
+        :param expr: Expr to fetch distance from self.locals for (to tell how deep to search environment hierarchy)
+        """
         distance = self.locals.get(expr)
         if distance is not None:
             return self.environment.get_at(distance, name.lexeme)

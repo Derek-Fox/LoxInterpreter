@@ -100,6 +100,10 @@ class Resolver(ExprVisitor, StmtVisitor):
 
     # ------- Helper methods ---------
     def declare(self, name: "Token"):
+        """
+        Declare a variable in the scope, i.e. put it in scope dict and mark with False (uninitialized).
+        :param name: Variable name Token
+        """
         if not self.scopes: return
 
         scope = self.scopes[-1]
@@ -109,17 +113,31 @@ class Resolver(ExprVisitor, StmtVisitor):
         scope[name.lexeme] = False
 
     def define(self, name: "Token"):
+        """
+        Define a variable in the scope, i.e. mark with True in scope dict
+        :param name: Variable name Token
+        """
         if not self.scopes: return
 
         self.scopes[-1][name.lexeme] = True
 
     def resolve_local(self, expr: "Expr", name: "Token"):
+        """
+        Find the innermost environment where local variable exists and mark its depth in the interpreter.
+        :param expr: Expression to mark depth of
+        :param name: Variable name Token
+        """
         for i, scope in enumerate(reversed(self.scopes)):
             if name.lexeme in scope:
                 self.interpreter.resolve(expr, i)
                 return
 
     def resolve_function(self, function: FunctionStmt, f_type: FunctionType):
+        """
+        Resolve a function declaration. This differs from variables because functions can call themselves.
+        :param function: FunctionStmt to resolve.
+        :param f_type: type of function (function, method, etc)
+        """
         enclosing_function = self.current_function
         self.current_function = f_type
 
@@ -133,12 +151,23 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.current_function = enclosing_function
 
     def begin_scope(self):
+        """
+        Push a scope to the stack.
+        """
         self.scopes.append({})
 
     def end_scope(self):
+        """
+        Pop a scope from the stack.
+        """
         self.scopes.pop()
 
     @classmethod
     def error(cls, token: "Token", message: str):
+        """
+        Send an error to be reported by Lox.
+        :param token: Token where error occurred.
+        :param message: Error message.
+        """
         from Lox import Lox
         Lox.error_token(token, message)

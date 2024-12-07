@@ -1,54 +1,25 @@
 from Token import Token, TokenType as TT
 
-
-def is_digit(c: str) -> bool:
-    """
-    Check if c is a digit (for our purposes)
-    :param c: character to check
-    :return: True or False
-    """
-    return ord('0') <= ord(c) <= ord('9')
-
-
-def is_alpha(c: str) -> bool:
-    """
-    Check if c is an alphabet character (for our purposes)
-    :param c: character to check
-    :return: True or False
-    """
-    return ('a' <= c <= 'z') or ('A' <= c <= 'Z') or c == '_'
-
-
-def is_alpha_numeric(c: str) -> bool:
-    """
-    Check if c is an alphanumeric character (for our purposes)
-    :param c: character to check
-    :return: True or False
-    """
-    return is_alpha(c) or is_digit(c)
-
-
-keywords = {
-    "and": TT.AND,
-    "class": TT.CLASS,
-    "else": TT.ELSE,
-    "false": TT.FALSE,
-    "for": TT.FOR,
-    "fun": TT.FUN,
-    "if": TT.IF,
-    "nil": TT.NIL,
-    "or": TT.OR,
-    "print": TT.PRINT,
-    "return": TT.RETURN,
-    "super": TT.SUPER,
-    "this": TT.THIS,
-    "true": TT.TRUE,
-    "var": TT.VAR,
-    "while": TT.WHILE
-}
-
-
 class Scanner:
+    keywords = {
+        "and": TT.AND,
+        "class": TT.CLASS,
+        "else": TT.ELSE,
+        "false": TT.FALSE,
+        "for": TT.FOR,
+        "fun": TT.FUN,
+        "if": TT.IF,
+        "nil": TT.NIL,
+        "or": TT.OR,
+        "print": TT.PRINT,
+        "return": TT.RETURN,
+        "super": TT.SUPER,
+        "this": TT.THIS,
+        "true": TT.TRUE,
+        "var": TT.VAR,
+        "while": TT.WHILE
+    }
+
     def __init__(self, source: str):
         self.source = source
         self.source_len = len(source)
@@ -117,9 +88,9 @@ class Scanner:
             case '"':
                 self.string()
             case _:
-                if is_digit(c):  # number literal
+                if self.is_digit(c):  # number literal
                     self.number()
-                elif is_alpha(c):  # identifier or keyword
+                elif self.is_alpha(c):  # identifier or keyword
                     self.identifier()
                 else:
                     self.error(self.line, f'Unexpected character: {c}')
@@ -137,7 +108,7 @@ class Scanner:
         """
         Add a token to the current list of tokens.
         :param t_type: TokenType of the token
-        :param literal: ??????
+        :param literal: literal value associated with Token
         """
         text = self.source[self.start:self.current]
         self.tokens.append(Token(t_type, text, literal, self.line))
@@ -197,12 +168,12 @@ class Scanner:
         """
         Consume a number literal from source.
         """
-        while is_digit(self.peek()): self.advance()
+        while self.is_digit(self.peek()): self.advance()
 
-        if self.peek() == '.' and is_digit(self.peek_next()):
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
             self.advance()  # eat .
 
-        while is_digit(self.peek()): self.advance()
+        while self.is_digit(self.peek()): self.advance()
 
         number = float(self.source[self.start:self.current])
         self.add_token(TT.NUMBER, number)
@@ -212,10 +183,10 @@ class Scanner:
         Consume an identifier from source.
         :return:
         """
-        while is_alpha_numeric(self.peek()): self.advance()
+        while self.is_alpha_numeric(self.peek()): self.advance()
 
         text = self.source[self.start:self.current]
-        self.add_token(keywords.get(text, TT.IDENTIFIER))
+        self.add_token(self.keywords.get(text, TT.IDENTIFIER))
 
     def comment(self):
         """
@@ -238,6 +209,33 @@ class Scanner:
 
         self.advance()
         self.advance()  # consume closing */
+
+    @classmethod
+    def is_digit(cls, c: str) -> bool:
+        """
+        Check if c is a digit (for our purposes)
+        :param c: character to check
+        :return: True or False
+        """
+        return ord('0') <= ord(c) <= ord('9')
+
+    @classmethod
+    def is_alpha(cls, c: str) -> bool:
+        """
+        Check if c is an alphabet character (for our purposes)
+        :param c: character to check
+        :return: True or False
+        """
+        return ('a' <= c <= 'z') or ('A' <= c <= 'Z') or c == '_'
+
+    @classmethod
+    def is_alpha_numeric(cls, c: str) -> bool:
+        """
+        Check if c is an alphanumeric character (for our purposes)
+        :param c: character to check
+        :return: True or False
+        """
+        return cls.is_alpha(c) or cls.is_digit(c)
 
     @classmethod
     def error(cls, line: int, message: str):
