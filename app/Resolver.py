@@ -7,7 +7,8 @@ from Stmt import *
 
 class FunctionType(Enum):
     NONE = auto(),
-    FUNCTION = auto()
+    FUNCTION = auto(),
+    METHOD = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
@@ -25,6 +26,10 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_class_stmt(self, stmt: "ClassStmt"):
         self.declare(stmt.name)
         self.define(stmt.name)
+
+        for method in stmt.methods:
+            declaration = FunctionType.METHOD
+            self.resolve_function(method, declaration)
 
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         self.resolve(stmt.expression)
