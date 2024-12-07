@@ -1,12 +1,19 @@
 from Expr import *
 from Stmt import *
 from Interpreter import Interpreter
+from enum import Enum, auto
+
+
+class FunctionType(Enum):
+    NONE = auto(),
+    FUNCTION = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes: list[dict] = []
+        self.current_function = FunctionType.NONE
 
     # -------- Stmt Visitor methods -------
     def visit_block_stmt(self, stmt: "BlockStmt"):
@@ -21,7 +28,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.declare(stmt.name)
         self.define(stmt.name)
 
-        self.resolve_function(stmt)
+        self.resolve_function(stmt, FunctionType.FUNCTION)
 
     def visit_if_stmt(self, stmt: "IfStmt"):
         self.resolve(stmt.condition)
@@ -32,6 +39,9 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(stmt.expression)
 
     def visit_return_stmt(self, stmt: "ReturnStmt"):
+        if self.current_function == FunctionType.NONE:
+            self.error(stmt.keyword, "Can't return when not in a function.")
+
         if stmt.value: self.resolve(stmt.value)
 
     def visit_var_stmt(self, stmt: "VarStmt"):
@@ -75,7 +85,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(expr.right)
 
     def visit_variable_expr(self, expr: "VariableExpr"):
-        if self.scopes and not self.scopes[-1][expr.name.lexeme]:
+        if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
             self.error(expr.name, "Can't read local variable in its own initializer.")
 
         self.resolve_local(expr, expr.name)
@@ -104,18 +114,23 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.scopes[-1][name.lexeme] = True
 
     def resolve_local(self, expr: "Expr", name: "Token"):
-        for i, scope in enumerate(reversed(scopes)):
+        for i, scope in enumerate(reversed(self.scopes)):
             if name.lexeme in scope:
-                self.interpreter.resolve(expr, i)  # TODO: implement this method!
+                self.interpreter.resolve(expr, i)
                 return
 
-    def resolve_function(self, function: FunctionStmt):
+    def resolve_function(self, function: FunctionStmt, f_type: FunctionType):
+        enclosing_function = self.current_function
+        self.current_function = f_type
+
         self.begin_scope()
         for param in function.params:
             self.declare(param)
             self.define(param)
         self.resolve_all(function.body)
         self.end_scope()
+
+        self.current_function = enclosing_function
 
     def begin_scope(self):
         self.scopes.append({})

@@ -3,8 +3,9 @@ import sys
 from Interpreter import Interpreter
 from LoxRuntimeError import LoxRuntimeError
 from Parser import Parser
-from Token import Token, TokenType as TT
 from Resolver import Resolver
+from Scanner import Scanner
+from Token import Token, TokenType as TT
 
 
 class Lox:
@@ -42,22 +43,25 @@ class Lox:
     @classmethod
     def run(cls, source: str, repl: bool = False):
         """
-        Run scanner, parser, interpreter on source.
+        Run scanner, parser, resolver, and interpreter on source.
         :param source: String of Lox source code.
         :param repl: Whether it is running in the repl.
         """
-        from Scanner import Scanner
+        # Scan
         scanner = Scanner(source)
         tokens = scanner.scan()
 
+        # Parse
         parser = Parser(tokens)
         statements = parser.parse()
+        if Lox.had_error: return  # stop if there are syntax (parse) errors
 
-        if Lox.had_error: return
-
+        # Resolve
         resolver = Resolver(Lox.interpreter)
         resolver.resolve_all(statements)
+        if Lox.had_error: return  # stop if there are resolution errors
 
+        # Interpret
         Lox.interpreter.interpret(statements, repl)
 
     @classmethod
