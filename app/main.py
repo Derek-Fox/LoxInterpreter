@@ -2,24 +2,6 @@ import sys
 
 from Lox import Lox
 
-
-def run_interactive():
-    """
-    Run interactive Lox shell.
-    """
-    Lox.run_prompt()
-
-
-def run_file(file) -> bool:
-    """
-    Run Lox source from file.
-    :param file: path to source file
-    :return: had error?
-    """
-    Lox.run_file(file)
-    return Lox.had_error
-
-
 def display_help():
     """
     Display help with command listing.
@@ -42,10 +24,10 @@ def parse_cmd(args):
     :param args: argv from main
     """
     commands = {
-        '--interactive': run_interactive,
-        '-i': run_interactive,
-        '--tokenize': lambda: run_file(args[2]),
-        '-f': lambda: run_file(args[2]),
+        '--interactive': Lox.run_prompt,
+        '-i': Lox.run_prompt,
+        '--tokenize': lambda: Lox.run_file(args[2]),
+        '-f': lambda: Lox.run_file(args[2]),
         '--help': display_help,
         '-h': display_help,
     }
@@ -57,13 +39,12 @@ def parse_cmd(args):
         print(f'Error: Unknown command {cmd}', file=sys.stderr)
         sys.exit(1)
 
-    error = func()
-    if error: sys.exit(1)
+    func()
 
 
 def main():
     if len(sys.argv) < 2:  # if no command given, run interactive mode
-        run_interactive()
+        Lox.run_prompt()
     elif len(sys.argv) > 3:
         print('Usage: python ./app/main.py [command] [filename]')
     else:
