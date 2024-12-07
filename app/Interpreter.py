@@ -1,16 +1,16 @@
-from typing import Dict
+import inspect
 
+import NativeFunctions
 from Environment import Environment
 from Expr import *
+from LoxCallable import LoxCallable
+from LoxClass import LoxClass
+from LoxFunction import LoxFunction
+from LoxInstance import LoxInstance
 from LoxRuntimeError import LoxRuntimeError
+from Return import Return
 from Stmt import *
 from Token import TokenType as TT
-from LoxFunction import LoxFunction
-from Return import Return
-from LoxClass import LoxClass
-from LoxInstance import LoxInstance
-from LoxFunction import LoxFunction
-from NativeFunctions import *
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -21,10 +21,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.define_native_functions()
 
     def define_native_functions(self):
-        self.globals.define("clock", Clock())
-        self.globals.define("readInput", ReadInput())
-        self.globals.define("sleep", Sleep())
-        self.globals.define("typeConvert", TypeConvert())
+        ignore = [LoxCallable, LoxRuntimeError]
+        for _, obj in inspect.getmembers(NativeFunctions,
+                                         predicate=lambda x: inspect.isclass(x) and x not in ignore):
+            self.globals.define(obj.name, obj())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):
         """
@@ -35,7 +35,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         try:
             for stmt in statements:
                 ret = self.execute(stmt)
-                if ret and repl: print(self.stringify(ret))  # print the return of expressions in repl
+                if ret is not None and repl: print(self.stringify(ret))  # print the return of expressions in repl
         except LoxRuntimeError as error:
             from Lox import Lox
             Lox.runtime_error(error)
@@ -139,7 +139,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
         except LoxRuntimeError as call_error:
             raise LoxRuntimeError(expr.paren, call_error.message)
 
-
     def visit_logical_expr(self, expr: "LogicalExpr"):
         left = self.evaluate(expr.left)
 
@@ -155,7 +154,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(expr.value)
 
         distance = self.locals.get(expr)
-        if distance:
+        if distance is not None:
             self.environment.assign_at(distance, expr.name, value)
         else:
             self.globals.assign(expr.name, value)

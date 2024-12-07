@@ -3,6 +3,8 @@ from LoxRuntimeError import LoxRuntimeError
 
 
 class ReadInput(LoxCallable):
+    name = 'readInput'
+
     def arity(self) -> int:
         return 0
 
@@ -14,6 +16,8 @@ class ReadInput(LoxCallable):
 
 
 class Clock(LoxCallable):
+    name = 'clock'
+
     def arity(self) -> int:
         return 0
 
@@ -26,6 +30,8 @@ class Clock(LoxCallable):
 
 
 class Sleep(LoxCallable):
+    name = 'sleep'
+
     def arity(self) -> int:
         return 1
 
@@ -42,22 +48,25 @@ class Sleep(LoxCallable):
 
 
 class TypeConvert(LoxCallable):
+    name = 'typeConvert'
+
     def arity(self) -> int:
         return 2
 
     def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
         to_convert, target_type = arguments[0], arguments[1]
 
-        match target_type:
-            case 'number':
-                if to_convert:
-                    return float(to_convert)
-            case 'string':
+        try:
+            if target_type == 'number':
+                return float(to_convert)
+            elif target_type == 'string':
                 return interpreter.stringify(to_convert)
-            case 'boolean':
+            elif target_type == 'boolean':
+                if isinstance(to_convert, str) and to_convert.lower() == 'false':
+                    return False  # convert str 'false' (with any caps) to boolean false, b/c is_truthy won't do that!
                 return interpreter.is_truthy(to_convert)
-            case _:
+            else:
                 raise LoxRuntimeError(message=f"Invalid target type '{target_type}'.")
-
-        raise LoxRuntimeError(message=f"Cannot convert '{'nil' if not to_convert else to_convert}' to '{target_type}'.")
-
+        except ValueError:
+            raise LoxRuntimeError(
+                message=f"Cannot convert '{'nil' if not to_convert else to_convert}' to '{target_type}'.")
