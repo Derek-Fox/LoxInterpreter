@@ -54,7 +54,7 @@ class TokenType(Enum):
         return self.name
 
 
-class Token:
+class LoxToken:
     def __init__(self, t_type: TokenType, lexeme: str, literal: object, line: int):
         self.t_type = t_type
         self.lexeme = lexeme

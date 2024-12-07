@@ -35,7 +35,7 @@ def define_visitor(file, base_name: str, class_names: list[str]):
 def write_imports(file, base_name: str, class_names: list[str]):
     file.write('from abc import ABC, abstractmethod\n')
     file.write('from typing import TYPE_CHECKING\n')
-    file.write('from Token import Token\n')
+    file.write('from lox.LoxToken import LoxToken\n')
     file.write('\n')
     file.write('if TYPE_CHECKING:\n')
     file.write(f'\tfrom {base_name} import ')
@@ -44,7 +44,7 @@ def write_imports(file, base_name: str, class_names: list[str]):
 
 
 def define_ast(output_dir: str, base_name: str, types: dict[str, dict[str, str]]):
-    path = f'{output_dir}/{base_name}.py'
+    path = f'{output_dir}/Lox{base_name}.py'
     class_names = list(types.keys())
 
     with open(path, 'w') as file:
@@ -62,13 +62,13 @@ def define_stmt_classes(output_dir):
     base_class = 'Stmt'
     types = {
         'Block': {'statements': 'list[Stmt]'},
-        'Class': {'name': 'Token', 'superclass': 'VariableExpr', 'methods': 'list[FunctionStmt]'},
+        'Class': {'name': 'LoxToken', 'superclass': 'VariableExpr', 'methods': 'list[FunctionStmt]'},
         'Expression': {'expression': 'Expr'},
-        'Function': {'name': 'Token', 'params': 'list[Token]', 'body': 'list[Stmt]'},
+        'Function': {'name': 'LoxToken', 'params': 'list[LoxToken]', 'body': 'list[Stmt]'},
         'If': {'condition': 'Expr', 'thenBranch': 'Stmt', 'elseBranch': 'Stmt'},
         'Print': {'expression': 'Expr'},
-        'Return': {'keyword': 'Token', 'value': 'Expr'},
-        'Var': {'name': 'Token', 'initializer': 'Expr'},
+        'Return': {'keyword': 'LoxToken', 'value': 'Expr'},
+        'Var': {'name': 'LoxToken', 'initializer': 'Expr'},
         'While': {'condition': 'Expr', 'body': 'Stmt'}
     }
     define_ast(output_dir, base_class, types)
@@ -77,18 +77,18 @@ def define_stmt_classes(output_dir):
 def define_expr_classes(output_dir):
     base_class = "Expr"
     types = {
-        'Assign': {'name': 'Token', 'value': 'Expr'},
-        'Binary': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
-        'Call': {'callee': 'Expr', 'paren': 'Token', 'arguments': 'list[Expr]'},
-        'Get': {'object': 'Expr', 'name': 'Token'},
+        'Assign': {'name': 'LoxToken', 'value': 'Expr'},
+        'Binary': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
+        'Call': {'callee': 'Expr', 'paren': 'LoxToken', 'arguments': 'list[Expr]'},
+        'Get': {'object': 'Expr', 'name': 'LoxToken'},
         'Grouping': {'expression': 'Expr'},
         'Literal': {'value': 'object'},
-        'Logical': {'left': 'Expr', 'operator': 'Token', 'right': 'Expr'},
-        'Set': {'object': 'Expr', 'name': 'Token', 'value': 'Expr'},
-        'Super': {'keyword': 'Token', 'method': 'Token'},
-        'This': {'keyword': 'Token'},
-        'Unary': {'operator': 'Token', 'right': 'Expr'},
-        'Variable': {'name': 'Token'}
+        'Logical': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
+        'Set': {'object': 'Expr', 'name': 'LoxToken', 'value': 'Expr'},
+        'Super': {'keyword': 'LoxToken', 'method': 'LoxToken'},
+        'This': {'keyword': 'LoxToken'},
+        'Unary': {'operator': 'LoxToken', 'right': 'Expr'},
+        'Variable': {'name': 'LoxToken'}
     }
     define_ast(output_dir, base_class, types)
 

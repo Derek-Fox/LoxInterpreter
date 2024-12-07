@@ -1,4 +1,4 @@
-from Token import Token, TokenType as TT
+from lox.LoxToken import LoxToken, TokenType as TT
 
 class Scanner:
     keywords = {
@@ -28,7 +28,7 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-    def scan(self) -> list[Token]:
+    def scan(self) -> list[LoxToken]:
         """
         Scan the characters from source and form tokens.
         :return: List of tokens.
@@ -37,7 +37,7 @@ class Scanner:
             self.start = self.current
             self.scan_token()
 
-        self.tokens.append(Token(TT.EOF, '', None, self.line))
+        self.tokens.append(LoxToken(TT.EOF, '', None, self.line))
         return self.tokens
 
     def scan_token(self):
@@ -111,7 +111,7 @@ class Scanner:
         :param literal: literal value associated with Token
         """
         text = self.source[self.start:self.current]
-        self.tokens.append(Token(t_type, text, literal, self.line))
+        self.tokens.append(LoxToken(t_type, text, literal, self.line))
 
     def is_at_end(self) -> bool:
         """
@@ -239,5 +239,5 @@ class Scanner:
 
     @classmethod
     def error(cls, line: int, message: str):
-        from Lox import Lox
+        from lox.Lox import Lox
         Lox.error_line(line, message)

@@ -1,7 +1,7 @@
-from Stmt import FunctionStmt
-from LoxCallable import LoxCallable
-from Environment import Environment
-from Return import Return
+from lox.LoxStmt import FunctionStmt
+from lox.LoxCallable import LoxCallable
+from lox.LoxEnvironment import Environment
+from lox.LoxReturn import LoxReturn
 
 
 class LoxFunction(LoxCallable):

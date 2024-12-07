@@ -1,6 +1,6 @@
-from LoxClass import LoxClass
-from Token import Token
-from LoxRuntimeError import LoxRuntimeError
+from lox.LoxClass import LoxClass
+from lox.LoxToken import LoxToken
+from lox.LoxRuntimeError import LoxRuntimeError
 
 
 class LoxInstance:
@@ -8,7 +8,7 @@ class LoxInstance:
         self.l_class = l_class
         self.fields = {}
 
-    def get(self, name: "Token"):
+    def get(self, name: "LoxToken"):
         if name.lexeme in self.fields:
             return self.fields[name.lexeme]
 
@@ -17,7 +17,7 @@ class LoxInstance:
 
         raise LoxRuntimeError(name, f"Undefined property {name.lexeme}.")
 
-    def set(self, name: "Token", value: object):
+    def set(self, name: "LoxToken", value: object):
         self.fields[name.lexeme] = value
 
     def __repr__(self):

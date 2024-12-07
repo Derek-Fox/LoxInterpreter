@@ -5,6 +5,7 @@ from Parser import Parser
 from Resolver import Resolver
 from Scanner import Scanner
 
+
 class Lox:
     interpreter = Interpreter()
     had_error = False
@@ -71,13 +72,13 @@ class Lox:
         cls.report(line, "", message)
 
     @classmethod
-    def error_token(cls, token: "Token", message: str):
+    def error_token(cls, token: "LoxToken", message: str):
         """
         Report error at given token to Lox.
         :param token: Token where error occurred
         :param message: Error message
         """
-        from Token import TokenType as TT
+        from lox.LoxToken import TokenType as TT
         where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
         cls.report(token.line, where, message)
 

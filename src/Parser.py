@@ -1,12 +1,12 @@
-from Expr import *
-from Stmt import *
-from Token import TokenType as TT
+from lox.LoxExpr import *
+from lox.LoxStmt import *
+from lox.LoxToken import TokenType as TT
 
 
 class Parser:
     MAX_FUNC_ARGS = 255
 
-    def __init__(self, tokens: list[Token]):
+    def __init__(self, tokens: list[LoxToken]):
         self.tokens = tokens
         self.current = 0
 
@@ -312,7 +312,7 @@ class Parser:
     # ----------- Helper methods ---------------
     def match(self, *t_types: TT) -> bool:
         """
-        Advance if current Token is one of t_types.
+        Advance if current LoxToken is one of t_types.
         :param t_types: TokenTypes to check for.
         :return: True if match found, else false
         """
@@ -331,10 +331,10 @@ class Parser:
         if self.is_at_end(): return False
         return self.peek().t_type == t_type
 
-    def peek(self) -> Token:
+    def peek(self) -> LoxToken:
         """
         Get the current token. Do not advance/consume.
-        :return: Token at current
+        :return: LoxToken at current
         """
         return self.tokens[self.current]
 
@@ -345,40 +345,40 @@ class Parser:
         """
         return self.peek().t_type == TT.EOF
 
-    def previous(self) -> Token:
+    def previous(self) -> LoxToken:
         """
-        Get Token at current - 1
-        :return: Token at current - 1
+        Get LoxToken at current - 1
+        :return: LoxToken at current - 1
         """
         return self.tokens[self.current - 1]
 
-    def advance(self) -> Token:
+    def advance(self) -> LoxToken:
         """
-        Get current Token and advance current pointer.
-        :return: Token at current
+        Get current LoxToken and advance current pointer.
+        :return: LoxToken at current
         """
         if not self.is_at_end(): self.current += 1
         return self.previous()
 
-    def consume(self, t_type: TT, err_message: str) -> Token:
+    def consume(self, t_type: TT, err_message: str) -> LoxToken:
         """
         Advance to next token if current token matches t_type, and return current
         :param t_type: TokenType to match at current
         :param err_message: Error message to raise if no match
-        :return: current Token
+        :return: current LoxToken
         :raises: ParseError if current token doesn't match t_type
         """
         if self.check(t_type): return self.advance()
         raise self.error(self.peek(), err_message)
 
-    def error(self, token: Token, message: str) -> ParseError:
+    def error(self, token: LoxToken, message: str) -> ParseError:
         """
         Generate an error and alert Lox
-        :param token: Token where error occurred
+        :param token: LoxToken where error occurred
         :param message: Error message
         :return: ParseError to raise
         """
-        from Lox import Lox
+        from lox.Lox import Lox
         Lox.error_token(token, message)
         return self.ParseError()
 

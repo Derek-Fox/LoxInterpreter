@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
-from Expr import *
+from lox.LoxExpr import *
 from Interpreter import Interpreter
-from Stmt import *
+from lox.LoxStmt import *
 
 
 class FunctionType(Enum):
@@ -164,7 +164,7 @@ class Resolver(ExprVisitor, StmtVisitor):
             self.resolve(thing)
 
     # ------- Helper methods ---------
-    def declare(self, name: "Token"):
+    def declare(self, name: "LoxToken"):
         """
         Declare a variable in the scope, i.e. put it in scope dict and mark with False (uninitialized).
         :param name: Variable name Token
@@ -177,7 +177,7 @@ class Resolver(ExprVisitor, StmtVisitor):
 
         scope[name.lexeme] = False
 
-    def define(self, name: "Token"):
+    def define(self, name: "LoxToken"):
         """
         Define a variable in the scope, i.e. mark with True in scope dict
         :param name: Variable name Token
@@ -186,7 +186,7 @@ class Resolver(ExprVisitor, StmtVisitor):
 
         self.peek_scope()[name.lexeme] = True
 
-    def resolve_local(self, expr: "Expr", name: "Token"):
+    def resolve_local(self, expr: "Expr", name: "LoxToken"):
         """
         Find the innermost environment where local variable exists and mark its depth in the interpreter.
         :param expr: Expression to mark depth of
@@ -235,11 +235,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         return self.scopes[-1]
 
     @classmethod
-    def error(cls, token: "Token", message: str):
+    def error(cls, token: "LoxToken", message: str):
         """
         Send an error to be reported by Lox.
         :param token: Token where error occurred.
         :param message: Error message.
         """
-        from Lox import Lox
+        from lox.Lox import Lox
         Lox.error_token(token, message)

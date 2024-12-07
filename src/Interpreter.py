@@ -1,16 +1,15 @@
 import inspect
 
-import NativeFunctions
-from Environment import Environment
-from Expr import *
-from LoxCallable import LoxCallable
-from LoxClass import LoxClass
-from LoxFunction import LoxFunction
-from LoxInstance import LoxInstance
-from LoxRuntimeError import LoxRuntimeError
-from Return import Return
-from Stmt import *
-from Token import TokenType as TT
+from lox.LoxEnvironment import Environment
+from lox.LoxExpr import *
+from lox.LoxCallable import LoxCallable
+from lox.LoxClass import LoxClass
+from lox.LoxFunction import LoxFunction
+from lox.LoxInstance import LoxInstance
+from lox.LoxRuntimeError import LoxRuntimeError
+from lox.LoxReturn import LoxReturn
+from lox.LoxStmt import *
+from lox.LoxToken import TokenType as TT
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -21,8 +20,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.define_native_functions()
 
     def define_native_functions(self):
+        import lox.NativeFunctions
         ignore = [LoxCallable, LoxRuntimeError]
-        for _, obj in inspect.getmembers(NativeFunctions,
+        for _, obj in inspect.getmembers(lox.NativeFunctions,
                                          predicate=lambda x: inspect.isclass(x) and x not in ignore):
             self.globals.define(obj.name, obj())
 
@@ -37,7 +37,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
                 ret = self.execute(stmt)
                 if ret is not None and repl: print(self.stringify(ret))  # print the return of expressions in repl
         except LoxRuntimeError as error:
-            from Lox import Lox
+            from lox.Lox import Lox
             Lox.runtime_error(error)
 
     # --------- Stmt Visitor Methods ---------
@@ -97,7 +97,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         if stmt.value:
             value = self.evaluate(stmt.value)
 
-        raise Return(value)
+        raise LoxReturn(value)
 
     def visit_while_stmt(self, stmt: "WhileStmt"):
         while self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.body)
@@ -123,7 +123,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
         for argument in expr.arguments:
             arguments.append(self.evaluate(argument))
 
-        from LoxCallable import LoxCallable
         if not isinstance(callee, LoxCallable):
             raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
 
@@ -266,7 +265,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         return True
 
     @classmethod
-    def check_number_operand(cls, operator: Token, operand: object):
+    def check_number_operand(cls, operator: LoxToken, operand: object):
         """
         Check that operand is a number. Lox only uses floats internally.
         :param operator: Operator which is expecting a number.
@@ -277,7 +276,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         raise LoxRuntimeError(operator, "Operand must be a number.")
 
     @classmethod
-    def check_number_operands(cls, operator: Token, left: object, right: object):
+    def check_number_operands(cls, operator: LoxToken, left: object, right: object):
         """
         Check that operands are numbers. Lox only uses floats internally.
         :param operator: Operator which is expecting 2 numbers.
@@ -311,7 +310,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         """
         self.locals[expr] = depth
 
-    def look_up_variable(self, name: Token, expr: Expr) -> object:
+    def look_up_variable(self, name: LoxToken, expr: Expr) -> object:
         """
         Look up variable in environment hierarchy.
         :param name: Variable name Token to look for

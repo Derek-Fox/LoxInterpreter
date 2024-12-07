@@ -1,5 +1,5 @@
-from LoxCallable import LoxCallable
-from LoxFunction import LoxFunction
+from lox.LoxCallable import LoxCallable
+from lox.LoxFunction import LoxFunction
 
 
 class LoxClass(LoxCallable):
@@ -18,7 +18,7 @@ class LoxClass(LoxCallable):
         return None
 
     def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
-        from LoxInstance import LoxInstance
+        from lox.LoxInstance import LoxInstance
         instance = LoxInstance(self)
 
         initializer = self.find_method("init")

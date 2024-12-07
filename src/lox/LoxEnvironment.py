@@ -1,5 +1,4 @@
-from Token import Token
-from LoxRuntimeError import LoxRuntimeError
+from lox.LoxRuntimeError import LoxRuntimeError
 
 
 class Environment:
@@ -16,7 +15,7 @@ class Environment:
         """
         self.values[name] = value
 
-    def assign(self, name: Token, value: object):
+    def assign(self, name: "LoxToken", value: object):
         """
         Assign a variable a new value.
         e.g. a = 2; (Assuming a has been defined).
@@ -35,7 +34,7 @@ class Environment:
 
         raise LoxRuntimeError(name, f"Undefined variable '{lexeme}'.")
 
-    def get(self, name: Token) -> object:
+    def get(self, name: "LoxToken") -> object:
         """
         Get the value of a variable in the environment.
         :param name: Token of the variable
@@ -59,7 +58,7 @@ class Environment:
         """
         return self.ancestor(distance).values.get(name)
 
-    def assign_at(self, distance: int, name: Token, value: object):
+    def assign_at(self, distance: int, name: "LoxToken", value: object):
         """
         Assign a value to a variable which is a certain depth in the environment hierarchy.
         :param distance: Depth of target variable in environment hierarchy

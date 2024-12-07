@@ -1,6 +1,6 @@
 import sys
 
-from Lox import Lox
+from lox.Lox import Lox
 
 def display_help():
     """
@@ -9,12 +9,11 @@ def display_help():
     """
     print(
         '''
-        Usage: python ./app/main.py <command> [filename]
+        Usage: python ./src/main.py <command> [filename]
         Available commands:
         - interactive or -i: Run the interpreter in interactive mode
         - tokenize or -f: Run the interpreter on the given file
-        - help or -h: Display this help message''',
-        file=sys.stderr
+        - help or -h: Display this help message'''
     )
 
 
@@ -46,7 +45,7 @@ def main():
     if len(sys.argv) < 2:  # if no command given, run interactive mode
         Lox.run_prompt()
     elif len(sys.argv) > 3:
-        print('Usage: python ./app/main.py [command] [filename]')
+        print('Usage: python ./src/main.py [command] [filename]')
     else:
         parse_cmd(sys.argv)
 
