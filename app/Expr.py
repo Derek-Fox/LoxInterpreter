@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from Token import Token
 
 if TYPE_CHECKING:
-	from Expr import AssignExpr, BinaryExpr, CallExpr, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
+	from Expr import AssignExpr, BinaryExpr, CallExpr, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, UnaryExpr, VariableExpr
 class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_assign_expr(self, expr: "AssignExpr"): pass
@@ -12,11 +12,15 @@ class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_call_expr(self, expr: "CallExpr"): pass
 	@abstractmethod
+	def visit_get_expr(self, expr: "GetExpr"): pass
+	@abstractmethod
 	def visit_grouping_expr(self, expr: "GroupingExpr"): pass
 	@abstractmethod
 	def visit_literal_expr(self, expr: "LiteralExpr"): pass
 	@abstractmethod
 	def visit_logical_expr(self, expr: "LogicalExpr"): pass
+	@abstractmethod
+	def visit_set_expr(self, expr: "SetExpr"): pass
 	@abstractmethod
 	def visit_unary_expr(self, expr: "UnaryExpr"): pass
 	@abstractmethod
@@ -49,6 +53,13 @@ class CallExpr(Expr):
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_call_expr(self)
 
+class GetExpr(Expr):
+	def __init__(self, object: "Expr", name: "Token", ):
+		self.object = object
+		self.name = name
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_get_expr(self)
+
 class GroupingExpr(Expr):
 	def __init__(self, expression: "Expr", ):
 		self.expression = expression
@@ -68,6 +79,14 @@ class LogicalExpr(Expr):
 		self.right = right
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_logical_expr(self)
+
+class SetExpr(Expr):
+	def __init__(self, object: "Expr", name: "Token", value: "Expr", ):
+		self.object = object
+		self.name = name
+		self.value = value
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_set_expr(self)
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: "Token", right: "Expr", ):

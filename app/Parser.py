@@ -36,8 +36,9 @@ class Parser:
             value = self.assignment()
 
             if isinstance(expr, VariableExpr):
-                name = expr.name
-                return AssignExpr(name, value)
+                return AssignExpr(expr.name, value)
+            elif isinstance(expr, GetExpr):
+                return SetExpr(expr.object, expr.name, value)
 
             self.error(equals, "Invalid assignment target.")
 
@@ -117,6 +118,9 @@ class Parser:
         while True:
             if self.match(TT.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TT.DOT):
+                name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
+                expr = GetExpr(expr, name)
             else:
                 break
 

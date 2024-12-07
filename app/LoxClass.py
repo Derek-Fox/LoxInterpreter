@@ -1,5 +1,6 @@
 from LoxCallable import LoxCallable
 
+
 class LoxClass(LoxCallable):
     def __init__(self, name: str):
         self.name = name

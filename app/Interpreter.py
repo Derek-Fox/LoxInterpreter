@@ -6,6 +6,7 @@ from Token import TokenType as TT
 from LoxFunction import LoxFunction
 from Return import Return
 from LoxClass import LoxClass
+from LoxInstance import LoxInstance
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -166,11 +167,29 @@ class Interpreter(ExprVisitor, StmtVisitor):
             case TT.BANG_EQUAL:
                 return left != right
 
+    def visit_get_expr(self, expr: "GetExpr"):
+        obj = self.evaluate(expr.object)
+
+        if isinstance(obj, LoxInstance):
+            return obj.get(expr.name)
+
+        raise LoxRuntimeError(expr.name, "Only instances have properties.")
+
     def visit_grouping_expr(self, expr: "GroupingExpr"):
         return self.evaluate(expr.expr)
 
     def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
+
+    def visit_set_expr(self, expr: "SetExpr"):
+        obj = self.evaluate(expr.object)
+
+        if not isinstance(obj, LoxInstance):
+            raise LoxRuntimeError(expr.name, "Only instances have fields.")
+
+        value = self.evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
 
     def visit_unary_expr(self, expr: "UnaryExpr"):
         right = self.evaluate(expr.right)

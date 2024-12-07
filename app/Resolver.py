@@ -76,6 +76,9 @@ class Resolver(ExprVisitor, StmtVisitor):
         for argument in expr.arguments:
             self.resolve(argument)
 
+    def visit_get_expr(self, expr: "GetExpr"):
+        self.resolve(expr.object)
+
     def visit_grouping_expr(self, expr: "GroupingExpr"):
         self.resolve(expr.expression)
 
@@ -85,6 +88,10 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_logical_expr(self, expr: "LogicalExpr"):
         self.resolve(expr.left)
         self.resolve(expr.right)
+
+    def visit_set_expr(self, expr: "SetExpr"):
+        self.resolve(expr.value)
+        self.resolve(expr.object)
 
     def visit_unary_expr(self, expr: "UnaryExpr"):
         self.resolve(expr.right)
