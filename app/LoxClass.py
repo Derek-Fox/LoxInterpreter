@@ -3,12 +3,19 @@ from LoxFunction import LoxFunction
 
 
 class LoxClass(LoxCallable):
-    def __init__(self, name: str, methods: dict[str, LoxFunction]):
+    def __init__(self, name: str, superclass: "LoxClass", methods: dict[str, LoxFunction]):
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
     def find_method(self, name: str) -> LoxFunction | None:
-        return self.methods.get(name)
+        if name in self.methods:
+            return self.methods[name]
+
+        if self.superclass:
+            return self.superclass.find_method(name)
+
+        return None
 
     def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
         from LoxInstance import LoxInstance
