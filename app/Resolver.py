@@ -14,7 +14,8 @@ class FunctionType(Enum):
 
 class ClassType(Enum):
     NONE = auto()
-    CLASS = auto()
+    CLASS = auto(),
+    SUBCLASS = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
@@ -41,6 +42,7 @@ class Resolver(ExprVisitor, StmtVisitor):
             if stmt.name.lexeme == stmt.superclass.name.lexeme:
                 self.error(stmt.superclass.name, "A class can't inherit from itself.")
 
+            self.current_class = ClassType.SUBCLASS
             self.resolve(stmt.superclass)
 
             self.begin_scope()  # scope to look up 'super' keyword
@@ -131,6 +133,10 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(expr.object)
 
     def visit_super_expr(self, expr: "SuperExpr"):
+        if self.current_class == ClassType.NONE:
+            self.error(expr.keyword, "Can't use 'super' outside of a class.")
+        elif not self.current_class == ClassType.SUBCLASS:
+            self.error(expr.keyword, "Can't use 'super' in a class with no superclass.")
         self.resolve_local(expr, expr.keyword)
 
     def visit_this_expr(self, expr: "ThisExpr"):
