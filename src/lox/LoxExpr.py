@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from lox.LoxToken import LoxToken
 
-if TYPE_CHECKING:
-	from Expr import AssignExpr, BinaryExpr, CallExpr, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_assign_expr(self, expr: "AssignExpr"): pass

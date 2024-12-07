@@ -37,10 +37,6 @@ def write_imports(file, base_name: str, class_names: list[str]):
     file.write('from typing import TYPE_CHECKING\n')
     file.write('from lox.LoxToken import LoxToken\n')
     file.write('\n')
-    file.write('if TYPE_CHECKING:\n')
-    file.write(f'\tfrom {base_name} import ')
-    file.write(', '.join([f'{class_name}{base_name}' for class_name in class_names]))
-    file.write('\n')
 
 
 def define_ast(output_dir: str, base_name: str, types: dict[str, dict[str, str]]):

@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from lox.LoxToken import LoxToken
 
-if TYPE_CHECKING:
-	from Stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt, IfStmt, PrintStmt, ReturnStmt, VarStmt, WhileStmt
 class StmtVisitor(ABC):
 	@abstractmethod
 	def visit_block_stmt(self, stmt: "BlockStmt"): pass
