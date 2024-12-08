@@ -54,6 +54,10 @@ class Scanner:
                 self.add_token(TT.LEFT_BRACE)
             case '}':
                 self.add_token(TT.RIGHT_BRACE)
+            case '[':
+                self.add_token(TT.LEFT_BRACKET)
+            case ']':
+                self.add_token(TT.RIGHT_BRACKET)
             case ',':
                 self.add_token(TT.COMMA)
             case '.':

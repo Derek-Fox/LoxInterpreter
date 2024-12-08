@@ -209,6 +209,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_grouping_expr(self, expr: "GroupingExpr"):
         return self.evaluate(expr.expression)
 
+    def visit_list_expr(self, expr: "ListExpr"):
+        return [self.evaluate(item) for item in expr.items]
+
     def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
 
@@ -300,6 +303,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return text if text[-2:] != ".0" else text[:-2]
         if isinstance(obj, bool):
             return str(obj).lower()  # why does python have capitalized bools??
+        if isinstance(obj, list):
+            item_strs = [cls.stringify(item) for item in obj]
+            return f"[{', '.join(item_strs)}]"
         return str(obj)
 
     def resolve(self, expr: Expr, depth: int):

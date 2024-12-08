@@ -160,16 +160,23 @@ class Parser:
             return GroupingExpr(expr)
 
         if self.match(TT.LEFT_BRACKET):
-            list = self.list()
-            self.consume(TT.RIGHT_BRACKET, "Expect ']' after list.")
-            return LiteralExpr(list)
+            return self.list_expr()
 
         raise self.error(self.peek(), "Expect expression.")
 
-    def list(self) -> list:
-        while not self.match(TT.RIGHT_BRACKET) and not self.is_at_end():
-            pass  # TODO: keep working on lists
+    def list_expr(self) -> ListExpr:
+        items = []
 
+        if self.match(TT.RIGHT_BRACKET):  # empty list
+            return ListExpr(items)
+
+        while not self.is_at_end():  # 1 or more items
+            items.append(self.logic_or())
+            if self.check(TT.RIGHT_BRACKET): break
+            self.consume(TT.COMMA, "Expect ',' between list items.")
+
+        self.consume(TT.RIGHT_BRACKET, "Expect ']' after list items.")
+        return ListExpr(items)
 
     def statement(self) -> Stmt:
         if self.match(TT.FOR): return self.for_statement()

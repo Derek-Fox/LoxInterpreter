@@ -121,6 +121,10 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_grouping_expr(self, expr: "GroupingExpr"):
         self.resolve(expr.expression)
 
+    def visit_list_expr(self, expr: "ListExpr"):
+        for item in expr.items:
+            self.resolve(item)
+
     def visit_literal_expr(self, expr: "LiteralExpr"):
         pass
 

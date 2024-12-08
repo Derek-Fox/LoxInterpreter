@@ -14,6 +14,8 @@ class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_grouping_expr(self, expr: "GroupingExpr"): pass
 	@abstractmethod
+	def visit_list_expr(self, expr: "ListExpr"): pass
+	@abstractmethod
 	def visit_literal_expr(self, expr: "LiteralExpr"): pass
 	@abstractmethod
 	def visit_logical_expr(self, expr: "LogicalExpr"): pass
@@ -67,6 +69,12 @@ class GroupingExpr(Expr):
 		self.expression = expression
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_grouping_expr(self)
+
+class ListExpr(Expr):
+	def __init__(self, items: "list[Expr]", ):
+		self.items = items
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_list_expr(self)
 
 class LiteralExpr(Expr):
 	def __init__(self, value: "object", ):

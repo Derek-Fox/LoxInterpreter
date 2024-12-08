@@ -76,6 +76,7 @@ def define_expr_classes(output_dir):
         'Call': {'callee': 'Expr', 'paren': 'LoxToken', 'arguments': 'list[Expr]'},
         'Get': {'object': 'Expr', 'name': 'LoxToken'},
         'Grouping': {'expression': 'Expr'},
+        'List': {'items': 'list[Expr]'},
         'Literal': {'value': 'object'},
         'Logical': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
         'Set': {'object': 'Expr', 'name': 'LoxToken', 'value': 'Expr'},
