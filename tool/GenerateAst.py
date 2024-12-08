@@ -50,6 +50,7 @@ def define_ast(output_dir: str, superclass: str, subclasses: dict[str, dict[str,
 
         for class_name, fields in subclasses.items():
             define_subclass(file, superclass, class_name, fields)
+    print(fr'Successfully wrote to {path}')
 
 
 def define_stmt_classes(output_dir):
@@ -71,6 +72,7 @@ def define_stmt_classes(output_dir):
 def define_expr_classes(output_dir):
     superclass = "Expr"
     types = {
+        'Access': {'lst': 'Expr', 'index': 'Expr'},
         'Assign': {'name': 'LoxToken', 'value': 'Expr'},
         'Binary': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
         'Call': {'callee': 'Expr', 'paren': 'LoxToken', 'arguments': 'list[Expr]'},

@@ -116,38 +116,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.environment = previous
 
     # -------- Expr Visitor methods ---------
-    def visit_call_expr(self, expr: "CallExpr"):
-        callee = self.evaluate(expr.callee)
+    def visit_access_expr(self, expr: "AccessExpr"):
+        lst = self.evaluate(expr.lst)
+        if not isinstance(lst, list):
+            raise LoxRuntimeError(expr.lst, "Can only access index of lists.")
 
-        arguments = []
-        for argument in expr.arguments:
-            arguments.append(self.evaluate(argument))
+        idx = self.evaluate(expr.index)
+        if not (isinstance(idx, float) and float(idx).is_integer()):
+            raise LoxRuntimeError(expr.index, "Can only index with a whole number.")
 
-        if not isinstance(callee, LoxCallable):
-            raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
-
-        num_args = len(arguments)
-        arity = callee.arity()
-
-        if num_args != arity:
-            raise LoxRuntimeError(expr.paren, f"Expected {arity} arguments but got {num_args}.")
-
-        try:
-            retval = callee.call(self, arguments)
-            return retval
-        except LoxRuntimeError as call_error:
-            raise LoxRuntimeError(expr.paren, call_error.message)
-
-    def visit_logical_expr(self, expr: "LogicalExpr"):
-        left = self.evaluate(expr.left)
-
-        # attempt to short circuit
-        if expr.operator.t_type == TT.OR:
-            if self.is_truthy(left): return left  # for OR, if first is true, return it
-        else:
-            if not self.is_truthy(left): return left  # for AND, if first is false, return it
-
-        return self.evaluate(expr.right)  # have to evaluate the second operand_
+        return lst[int(idx)]
 
     def visit_assign_expr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
@@ -198,6 +176,28 @@ class Interpreter(ExprVisitor, StmtVisitor):
             case TT.BANG_EQUAL:
                 return left != right
 
+    def visit_call_expr(self, expr: "CallExpr"):
+        callee = self.evaluate(expr.callee)
+
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
+
+        num_args = len(arguments)
+        arity = callee.arity()
+
+        if num_args != arity:
+            raise LoxRuntimeError(expr.paren, f"Expected {arity} arguments but got {num_args}.")
+
+        try:
+            retval = callee.call(self, arguments)
+            return retval
+        except LoxRuntimeError as call_error:
+            raise LoxRuntimeError(expr.paren, call_error.message)
+
     def visit_get_expr(self, expr: "GetExpr"):
         obj = self.evaluate(expr.object)
 
@@ -214,6 +214,17 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
+
+    def visit_logical_expr(self, expr: "LogicalExpr"):
+        left = self.evaluate(expr.left)
+
+        # attempt to short circuit
+        if expr.operator.t_type == TT.OR:
+            if self.is_truthy(left): return left  # for OR, if first is true, return it
+        else:
+            if not self.is_truthy(left): return left  # for AND, if first is false, return it
+
+        return self.evaluate(expr.right)  # have to evaluate the second operand_
 
     def visit_set_expr(self, expr: "SetExpr"):
         obj = self.evaluate(expr.object)

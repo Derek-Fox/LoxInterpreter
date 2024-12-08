@@ -39,6 +39,8 @@ class Parser:
                 return AssignExpr(expr.name, value)
             elif isinstance(expr, GetExpr):
                 return SetExpr(expr.object, expr.name, value)
+            elif isinstance(expr, AccessExpr):
+                pass  # todo: support assigning to list at index
 
             self.error(equals, "Invalid assignment target.")
 
@@ -112,34 +114,6 @@ class Parser:
 
         return self.call()
 
-    def call(self) -> Expr:
-        expr = self.primary()
-
-        while True:
-            if self.match(TT.LEFT_PAREN):
-                expr = self.finish_call(expr)
-            elif self.match(TT.DOT):
-                name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
-                expr = GetExpr(expr, name)
-            else:
-                break
-
-        return expr
-
-    def finish_call(self, callee: Expr) -> Expr:
-        arguments = []
-
-        if not self.check(TT.RIGHT_PAREN):
-            while True:
-                if len(arguments) >= self.MAX_FUNC_ARGS:
-                    self.error(self.peek(), f"Can't have more than {self.MAX_FUNC_ARGS} arguments")
-                arguments.append(self.expression())
-                if not self.match(TT.COMMA): break
-
-        paren = self.consume(TT.RIGHT_PAREN, "Expect ')' after arguments.")
-
-        return CallExpr(callee, paren, arguments)
-
     def primary(self) -> Expr:
         if self.match(TT.FALSE): return LiteralExpr(False)
         if self.match(TT.TRUE): return LiteralExpr(True)
@@ -163,6 +137,49 @@ class Parser:
             return self.list_expr()
 
         raise self.error(self.peek(), "Expect expression.")
+
+    def call(self) -> Expr:
+        expr = self.primary()
+
+        while True:
+            if self.match(TT.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            elif self.match(TT.DOT):
+                name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
+                expr = GetExpr(expr, name)
+            elif self.match(TT.LEFT_BRACKET):
+                return self.finish_access(expr)
+            else:
+                break
+
+        return expr
+
+    def finish_call(self, callee: Expr) -> CallExpr:
+        arguments = []
+
+        if not self.check(TT.RIGHT_PAREN):
+            while True:
+                if len(arguments) >= self.MAX_FUNC_ARGS:
+                    self.error(self.peek(), f"Can't have more than {self.MAX_FUNC_ARGS} arguments")
+                arguments.append(self.expression())
+                if not self.match(TT.COMMA): break
+
+        paren = self.consume(TT.RIGHT_PAREN, "Expect ')' after arguments.")
+
+        return CallExpr(callee, paren, arguments)
+
+    def finish_access(self, lst: Expr) -> AccessExpr:
+        idx = None
+        if self.match(TT.NUMBER):
+            idx = LiteralExpr(self.previous().literal)
+        elif self.match(TT.IDENTIFIER):
+            idx = VariableExpr(self.previous())
+        else:
+            idx = self.term()
+
+        self.consume(TT.RIGHT_BRACKET, "Expect ']' after index.")
+
+        return AccessExpr(lst, idx)
 
     def list_expr(self) -> ListExpr:
         items = []
@@ -377,16 +394,17 @@ class Parser:
         if not self.is_at_end(): self.current += 1
         return self.previous()
 
-    def consume(self, t_type: TT, err_message: str) -> LoxToken:
+    def consume(self, t_type: TT, error_message: str) -> LoxToken:
         """
-        Advance to next token if current token matches t_type, and return current
+        Advance to next token if current token matches t_type, and return current.
+        If match not found, raise error with error_message.
         :param t_type: TokenType to match at current
-        :param err_message: Error message to raise if no match
+        :param error_message: Error message to raise if no match
         :return: current LoxToken
         :raises: ParseError if current token doesn't match t_type
         """
         if self.check(t_type): return self.advance()
-        raise self.error(self.peek(), err_message)
+        raise self.error(self.peek(), error_message)
 
     def error(self, token: LoxToken, message: str) -> ParseError:
         """

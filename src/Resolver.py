@@ -101,6 +101,10 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(stmt.body)
 
     # ------- Expr Visitor methods ----------
+    def visit_access_expr(self, expr: "AccessExpr"):
+        self.resolve(expr.lst)
+        self.resolve(expr.index)
+
     def visit_assign_expr(self, expr: "AssignExpr"):
         self.resolve(expr.value)
         self.resolve_local(expr, expr.name)

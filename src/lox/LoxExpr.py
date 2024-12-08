@@ -4,6 +4,8 @@ from lox.LoxToken import LoxToken
 
 class ExprVisitor(ABC):
 	@abstractmethod
+	def visit_access_expr(self, expr: "AccessExpr"): pass
+	@abstractmethod
 	def visit_assign_expr(self, expr: "AssignExpr"): pass
 	@abstractmethod
 	def visit_binary_expr(self, expr: "BinaryExpr"): pass
@@ -33,6 +35,13 @@ class ExprVisitor(ABC):
 class Expr(ABC):
 	@abstractmethod
 	def accept(self, visitor: "ExprVisitor"): pass
+
+class AccessExpr(Expr):
+	def __init__(self, lst: "Expr", index: "Expr", ):
+		self.lst = lst
+		self.index = index
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_access_expr(self)
 
 class AssignExpr(Expr):
 	def __init__(self, name: "LoxToken", value: "Expr", ):
