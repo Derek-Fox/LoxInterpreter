@@ -1,62 +1,60 @@
 import sys
 
 
-def define_type(file, base_name: str, class_name: str, fields: dict[str, str]):
-    file.write(f'class {class_name}{base_name}({base_name}):\n')
+def define_subclass(file, superclass: str, subclass: str, fields: dict[str, str]):
+    file.write(f'class {subclass}{superclass}({superclass}):\n')
 
     file.write(f'\tdef __init__(self, ')
-    for field_name, field_type in fields.items():
-        file.write(f'{field_name}: "{field_type}", ')
+    for name, type in fields.items():
+        file.write(f'{name}: "{type}", ')
     file.write('):\n')
 
-    for field_name in fields.keys():
-        file.write(f'\t\tself.{field_name} = {field_name}\n')
+    for name in fields.keys():
+        file.write(f'\t\tself.{name} = {name}\n')
 
-    file.write(f'\tdef accept(self, visitor: "{base_name}Visitor"):\n')
-    file.write(f'\t\treturn visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n')
+    file.write(f'\tdef accept(self, visitor: "{superclass}Visitor"):\n')
+    file.write(f'\t\treturn visitor.visit_{subclass.lower()}_{superclass.lower()}(self)\n')
     file.write('\n')
 
 
-def define_base(file, base_name):
-    file.write(f'class {base_name}(ABC):\n')
+def define_superclass(file, superclass):
+    file.write(f'class {superclass}(ABC):\n')
     file.write('\t@abstractmethod\n')
-    file.write(f'\tdef accept(self, visitor: "{base_name}Visitor"): pass\n\n')
+    file.write(f'\tdef accept(self, visitor: "{superclass}Visitor"): pass\n\n')
 
 
-def define_visitor(file, base_name: str, class_names: list[str]):
-    file.write(f'class {base_name}Visitor(ABC):\n')
-    for class_name in class_names:
+def define_visitor(file, superclass: str, subclasses: dict):
+    file.write(f'class {superclass}Visitor(ABC):\n')
+    for subclass in subclasses.keys():
         file.write('\t@abstractmethod\n')
-        file.write(f'\tdef visit_{class_name.lower()}_{base_name.lower()}')
-        file.write(f'(self, {base_name.lower()}: "{class_name}{base_name}"): pass\n')
+        file.write(f'\tdef visit_{subclass.lower()}_{superclass.lower()}')
+        file.write(f'(self, {superclass.lower()}: "{subclass}{superclass}"): pass\n')
     file.write('\n')
 
 
-def write_imports(file, base_name: str, class_names: list[str]):
+def write_imports(file):
     file.write('from abc import ABC, abstractmethod\n')
     file.write('from typing import TYPE_CHECKING\n')
     file.write('from lox.LoxToken import LoxToken\n')
     file.write('\n')
 
 
-def define_ast(output_dir: str, base_name: str, types: dict[str, dict[str, str]]):
-    path = f'{output_dir}/Lox{base_name}.py'
-    class_names = list(types.keys())
-
+def define_ast(output_dir: str, superclass: str, subclasses: dict[str, dict[str, str]]):
+    path = f'{output_dir}/Lox{superclass}.py'
     with open(path, 'w') as file:
-        write_imports(file, base_name, class_names)
+        write_imports(file)
 
-        define_visitor(file, base_name, class_names)
+        define_visitor(file, superclass, subclasses)
 
-        define_base(file, base_name)
+        define_superclass(file, superclass)
 
-        for class_name, fields in types.items():
-            define_type(file, base_name, class_name, fields)
+        for class_name, fields in subclasses.items():
+            define_subclass(file, superclass, class_name, fields)
 
 
 def define_stmt_classes(output_dir):
-    base_class = 'Stmt'
-    types = {
+    superclass = 'Stmt'
+    subclasses = {
         'Block': {'statements': 'list[Stmt]'},
         'Class': {'name': 'LoxToken', 'superclass': 'VariableExpr', 'methods': 'list[FunctionStmt]'},
         'Expression': {'expression': 'Expr'},
@@ -67,11 +65,11 @@ def define_stmt_classes(output_dir):
         'Var': {'name': 'LoxToken', 'initializer': 'Expr'},
         'While': {'condition': 'Expr', 'body': 'Stmt'}
     }
-    define_ast(output_dir, base_class, types)
+    define_ast(output_dir, superclass, subclasses)
 
 
 def define_expr_classes(output_dir):
-    base_class = "Expr"
+    superclass = "Expr"
     types = {
         'Assign': {'name': 'LoxToken', 'value': 'Expr'},
         'Binary': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
@@ -86,7 +84,7 @@ def define_expr_classes(output_dir):
         'Unary': {'operator': 'LoxToken', 'right': 'Expr'},
         'Variable': {'name': 'LoxToken'}
     }
-    define_ast(output_dir, base_class, types)
+    define_ast(output_dir, superclass, types)
 
 
 def main():
