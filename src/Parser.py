@@ -1,6 +1,6 @@
 from lox.LoxExpr import *
 from lox.LoxStmt import *
-from lox.LoxToken import TokenType as TT
+from lox.LoxToken import LoxToken, TokenType as TT
 
 
 class Parser:
@@ -159,7 +159,17 @@ class Parser:
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return GroupingExpr(expr)
 
+        if self.match(TT.LEFT_BRACKET):
+            list = self.list()
+            self.consume(TT.RIGHT_BRACKET, "Expect ']' after list.")
+            return LiteralExpr(list)
+
         raise self.error(self.peek(), "Expect expression.")
+
+    def list(self) -> list:
+        while not self.match(TT.RIGHT_BRACKET) and not self.is_at_end():
+            pass  # TODO: keep working on lists
+
 
     def statement(self) -> Stmt:
         if self.match(TT.FOR): return self.for_statement()
