@@ -17,13 +17,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.globals = Environment()
         self.environment = self.globals
         self.locals: dict[Expr, int] = {}
-        self.define_native_functions()
 
-    def define_native_functions(self):
         import lox.NativeFunctions
+        self.define_native_functions(lox.NativeFunctions)
+
+        import lox.ListNativeFunctions
+        self.define_native_functions(lox.ListNativeFunctions)
+
+    def define_native_functions(self, module):
         ignore = [LoxCallable, LoxRuntimeError]
-        for _, obj in inspect.getmembers(lox.NativeFunctions,
-                                         predicate=lambda x: inspect.isclass(x) and x not in ignore):
+        for _, obj in inspect.getmembers(module, predicate=lambda x: inspect.isclass(x) and x not in ignore):
             self.globals.define(obj.name, obj())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):
