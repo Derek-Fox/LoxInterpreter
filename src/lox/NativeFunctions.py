@@ -3,7 +3,7 @@ from lox.LoxRuntimeError import LoxRuntimeError
 
 
 class ReadInput(LoxCallable):
-    name = 'readInput'
+    name = 'input'
 
     def arity(self) -> int:
         return 0
@@ -12,7 +12,7 @@ class ReadInput(LoxCallable):
         return input()
 
     def __repr__(self):
-        return '<native fn readInput>'
+        return '<native fn input>'
 
 
 class Clock(LoxCallable):
@@ -46,9 +46,12 @@ class Sleep(LoxCallable):
         time.sleep(float(sleep_time))
         return None
 
+    def __repr__(self):
+        return '<native fn sleep>'
+
 
 class TypeConvert(LoxCallable):
-    name = 'typeConvert'
+    name = 'convert'
 
     def arity(self) -> int:
         return 2
@@ -70,3 +73,6 @@ class TypeConvert(LoxCallable):
         except ValueError:
             raise LoxRuntimeError(
                 message=f"Cannot convert '{'nil' if not to_convert else to_convert}' to '{target_type}'.")
+
+    def __repr__(self):
+        return '<native fn convert>'

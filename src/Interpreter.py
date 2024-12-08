@@ -149,12 +149,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
             case TT.PLUS:
                 if isinstance(left, float) and isinstance(right, float):
                     return float(left) + float(right)
-                if isinstance(left, str) or isinstance(right, str):
-                    return self.stringify(left) + self.stringify(right)
                 if isinstance(left, list):
                     left = list(left)
                     left.append(right)
                     return left
+                if isinstance(left, str) or isinstance(right, str):
+                    return self.stringify(left) + self.stringify(right)
                 raise LoxRuntimeError(expr.operator, "Unsupported types for addition.")
             case TT.GREATER:
                 self.check_number_operands(expr.operator, left, right)
