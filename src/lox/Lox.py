@@ -79,7 +79,7 @@ class Lox:
         :param message: Error message
         """
         from lox.LoxToken import TokenType as TT
-        where = 'at end' if token.t_type == TT.EOF else f'at {token.lexeme}'
+        where = 'at end' if token.t_type == TT.EOF else f"at '{token.lexeme}'"
         cls.report(token.line, where, message)
 
     @classmethod
@@ -90,7 +90,7 @@ class Lox:
         :param where: Where in the line error occurred
         :param message: Error message
         """
-        print(f'[line {line}] Error {where}: {message}', file=sys.stderr)
+        print(fr'[line {line}] Error {where}: {message}', file=sys.stderr)
         Lox.had_error = True
 
     @classmethod

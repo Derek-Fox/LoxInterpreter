@@ -139,17 +139,20 @@ class Interpreter(ExprVisitor, StmtVisitor):
         right = self.evaluate(expr.right)
 
         match expr.operator.t_type:
-            case TT.MINUS:
+            case TT.MINUS | TT.MINUS_EQUAL | TT.MINUS_MINUS:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) - float(right)
-            case TT.SLASH:
+            case TT.SLASH | TT.SLASH_EQUAL:
                 self.check_number_operands(expr.operator, left, right)
                 if float(right) == 0: raise LoxRuntimeError(expr.operator, "Cannot divide by 0.")
                 return float(left) / float(right)
-            case TT.STAR:
+            case TT.STAR | TT.STAR_EQUAL:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) * float(right)
-            case TT.PLUS:
+            case TT.CARAT:
+                self.check_number_operands(expr.operator, left, right)
+                return float(left) ** float(right)
+            case TT.PLUS | TT.PLUS_EQUAL | TT.PLUS_PLUS:
                 if isinstance(left, float) and isinstance(right, float):
                     return float(left) + float(right)
                 if isinstance(left, list):
@@ -259,11 +262,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_unary_expr(self, expr: "UnaryExpr"):
         right = self.evaluate(expr.right)
 
-        if expr.operator.t_type == TT.MINUS:
-            self.check_number_operand(expr.operator, right)
-            return -float(right)
-        elif expr.operator.t_type == TT.BANG:
-            return not self.is_truthy(right)
+        match expr.operator.t_type:
+            case TT.MINUS:
+                self.check_number_operand(expr.operator, right)
+                return -float(right)
+            case TT.BANG:
+                return not self.is_truthy(right)
 
     def visit_variable_expr(self, expr: "VariableExpr"):
         return self.look_up_variable(expr.name, expr)

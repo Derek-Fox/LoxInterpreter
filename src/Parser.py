@@ -29,7 +29,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expr:
-        expr = self.logic_or()
+        expr = self.in_de_crement()
 
         if self.match(TT.EQUAL):
             equals = self.previous()
@@ -45,6 +45,40 @@ class Parser:
             self.error(equals, "Invalid assignment target.")
 
         return expr
+
+    def in_de_crement(self) -> Expr:
+        if self.match(TT.PLUS_PLUS, TT.MINUS_MINUS):
+            crement = self.previous()
+            left = self.assign_with_op()
+
+            if isinstance(left, VariableExpr):
+                return AssignExpr(left.name, BinaryExpr(left, crement, LiteralExpr(1.)))
+            elif isinstance(left, GetExpr):
+                return SetExpr(left.object, left.name, BinaryExpr(left, crement, LiteralExpr(1.)))
+            elif isinstance(left, AccessExpr):
+                return ListAssignExpr(left.name, left.lst, left.index, BinaryExpr(left, crement, LiteralExpr(1.)))
+
+            self.error(assign_op, "Invalid assignment target.")
+
+        return self.assign_with_op()
+
+    def assign_with_op(self) -> Expr:
+        left = self.logic_or()
+
+        if self.match(TT.MINUS_EQUAL, TT.PLUS_EQUAL, TT.SLASH_EQUAL, TT.STAR_EQUAL):
+            assign_op = self.previous()
+            right = self.logic_or()
+
+            if isinstance(left, VariableExpr):
+                return AssignExpr(left.name, BinaryExpr(left, assign_op, right))
+            elif isinstance(left, GetExpr):
+                return SetExpr(left.object, left.name, BinaryExpr(left, assign_op, right))
+            elif isinstance(left, AccessExpr):
+                return ListAssignExpr(left.name, left.lst, left.index, BinaryExpr(left, assign_op, right))
+
+            self.error(assign_op, "Invalid assignment target.")
+
+        return left
 
     def logic_or(self) -> Expr:
         expr = self.logic_and()
@@ -107,12 +141,22 @@ class Parser:
         return expr
 
     def unary(self) -> Expr:
-        if self.match(TT.BANG, TT.MINUS):
+        if self.match(TT.BANG, TT.MINUS, TT.PLUS_PLUS, TT.MINUS_MINUS):
             operator = self.previous()
             right = self.unary()
             return UnaryExpr(operator, right)
 
-        return self.call()
+        return self.power()
+
+    def power(self) -> Expr:
+        expr = self.call()
+
+        while self.match(TT.CARAT):
+            operator = self.previous()
+            right = self.power()
+            expr = BinaryExpr(expr, operator, right)
+
+        return expr
 
     def call(self) -> Expr:
         expr = self.primary()

@@ -1,5 +1,6 @@
 from lox.LoxToken import LoxToken, TokenType as TT
 
+
 class Scanner:
     keywords = {
         "and": TT.AND,
@@ -62,14 +63,16 @@ class Scanner:
                 self.add_token(TT.COMMA)
             case '.':
                 self.add_token(TT.DOT)
-            case '-':
-                self.add_token(TT.MINUS)
-            case '+':
-                self.add_token(TT.PLUS)
             case ';':
                 self.add_token(TT.SEMICOLON)
+            case '^':
+                self.add_token(TT.CARAT)
+            case '-':
+                self.add_token(TT.MINUS_EQUAL if self.match('=') else TT.MINUS_MINUS if self.match('-') else TT.MINUS)
+            case '+':
+                self.add_token(TT.PLUS_EQUAL if self.match('=') else TT.PLUS_PLUS if self.match('+') else TT.PLUS)
             case '*':
-                self.add_token(TT.STAR)
+                self.add_token(TT.STAR_EQUAL if self.match('=') else TT.STAR)
             case '!':
                 self.add_token(TT.BANG_EQUAL if self.match('=') else TT.BANG)
             case '=':
@@ -84,7 +87,7 @@ class Scanner:
                 elif self.match('*'):  # found a '/*' (block comment)
                     self.block_comment()
                 else:
-                    self.add_token(TT.SLASH)
+                    self.add_token(TT.SLASH_EQUAL if self.match('=') else TT.SLASH)
             case ' ' | '\r' | '\t':  # ignore whitespace
                 pass
             case '\n':
