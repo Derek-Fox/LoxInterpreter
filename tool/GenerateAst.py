@@ -72,13 +72,14 @@ def define_stmt_classes(output_dir):
 def define_expr_classes(output_dir):
     superclass = "Expr"
     types = {
-        'Access': {'lst': 'Expr', 'bracket': 'LoxToken', 'index': 'Expr'},
+        'Access': {'name': 'LoxToken', 'lst': 'Expr', 'index': 'Expr'},
         'Assign': {'name': 'LoxToken', 'value': 'Expr'},
         'Binary': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
         'Call': {'callee': 'Expr', 'paren': 'LoxToken', 'arguments': 'list[Expr]'},
         'Get': {'object': 'Expr', 'name': 'LoxToken'},
         'Grouping': {'expression': 'Expr'},
         'List': {'items': 'list[Expr]'},
+        'ListAssign': {'name': 'LoxToken', 'lst': 'Expr', 'index': 'Expr', 'value': 'Expr'},
         'Literal': {'value': 'object'},
         'Logical': {'left': 'Expr', 'operator': 'LoxToken', 'right': 'Expr'},
         'Set': {'object': 'Expr', 'name': 'LoxToken', 'value': 'Expr'},

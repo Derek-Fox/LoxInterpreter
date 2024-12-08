@@ -117,18 +117,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     # -------- Expr Visitor methods ---------
     def visit_access_expr(self, expr: "AccessExpr"):
-        lst = self.evaluate(expr.lst)
-        if not isinstance(lst, list):
-            raise LoxRuntimeError(expr.bracket, "Can only access index of lists.")
-
-        idx = self.evaluate(expr.index)
-        if not (isinstance(idx, float) and float(idx).is_integer()):
-            raise LoxRuntimeError(expr.bracket, "Can only index with a whole number.")
-
-        try:
-            return lst[int(idx)]
-        except IndexError:
-            raise LoxRuntimeError(expr.bracket, "List index out of range.")
+        lst, index = self.validate_list_indexing(expr)
+        return lst[int(index)]
 
     def visit_assign_expr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)
@@ -218,6 +208,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_list_expr(self, expr: "ListExpr"):
         return [self.evaluate(item) for item in expr.items]
+
+    def visit_listassign_expr(self, expr: "ListAssignExpr"):
+        lst, idx = self.validate_list_indexing(expr)
+        lst[idx] = self.evaluate(expr.value)
+        return lst
 
     def visit_literal_expr(self, expr: "LiteralExpr"):
         return expr.value
@@ -325,6 +320,21 @@ class Interpreter(ExprVisitor, StmtVisitor):
             item_strs = [cls.stringify(item) for item in obj]
             return f"[{', '.join(item_strs)}]"
         return str(obj)
+
+    def validate_list_indexing(self, expr: AccessExpr | ListAssignExpr) -> tuple[list, int]:
+        lst = self.evaluate(expr.lst)
+        if not isinstance(lst, list):
+            raise LoxRuntimeError(expr.name, "Can only access index of lists.")
+
+        index = self.evaluate(expr.index)
+        if not (isinstance(index, float) and float(index).is_integer()):
+            raise LoxRuntimeError(expr.name, "Can only index with a whole number.")
+
+        length = len(lst)
+        if index >= length or index < -length:
+            raise LoxRuntimeError(expr.name, "List index out of range.")
+
+        return lst, int(index)
 
     def resolve(self, expr: Expr, depth: int):
         """

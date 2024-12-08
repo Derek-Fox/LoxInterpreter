@@ -40,7 +40,7 @@ class Parser:
             elif isinstance(expr, GetExpr):
                 return SetExpr(expr.object, expr.name, value)
             elif isinstance(expr, AccessExpr):
-                pass  # todo: support assigning to list at index
+                return ListAssignExpr(expr.name, expr.lst, expr.index, value)
 
             self.error(equals, "Invalid assignment target.")
 
@@ -124,7 +124,7 @@ class Parser:
                 name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
                 expr = GetExpr(expr, name)
             elif self.match(TT.LEFT_BRACKET):
-                return self.finish_access(expr)
+                expr = self.finish_access(expr, expr.name)
             else:
                 break
 
@@ -168,7 +168,7 @@ class Parser:
 
         return CallExpr(callee, paren, arguments)
 
-    def finish_access(self, lst: Expr) -> AccessExpr:
+    def finish_access(self, lst: Expr, name: LoxToken) -> AccessExpr:
         if self.match(TT.NUMBER):
             idx = LiteralExpr(self.previous().literal)
         elif self.match(TT.IDENTIFIER):
@@ -176,9 +176,9 @@ class Parser:
         else:
             idx = self.term()
 
-        bracket = self.consume(TT.RIGHT_BRACKET, "Expect ']' after index.")
+        self.consume(TT.RIGHT_BRACKET, "Expect ']' after index.")
 
-        return AccessExpr(lst, bracket, idx)
+        return AccessExpr(name, lst, idx)
 
     def list_expr(self) -> ListExpr:
         items = []

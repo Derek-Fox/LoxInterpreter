@@ -18,6 +18,8 @@ class ExprVisitor(ABC):
 	@abstractmethod
 	def visit_list_expr(self, expr: "ListExpr"): pass
 	@abstractmethod
+	def visit_listassign_expr(self, expr: "ListAssignExpr"): pass
+	@abstractmethod
 	def visit_literal_expr(self, expr: "LiteralExpr"): pass
 	@abstractmethod
 	def visit_logical_expr(self, expr: "LogicalExpr"): pass
@@ -37,9 +39,9 @@ class Expr(ABC):
 	def accept(self, visitor: "ExprVisitor"): pass
 
 class AccessExpr(Expr):
-	def __init__(self, lst: "Expr", bracket: "LoxToken", index: "Expr", ):
+	def __init__(self, name: "LoxToken", lst: "Expr", index: "Expr", ):
+		self.name = name
 		self.lst = lst
-		self.bracket = bracket
 		self.index = index
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_access_expr(self)
@@ -85,6 +87,15 @@ class ListExpr(Expr):
 		self.items = items
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_list_expr(self)
+
+class ListAssignExpr(Expr):
+	def __init__(self, name: "LoxToken", lst: "Expr", index: "Expr", value: "Expr", ):
+		self.name = name
+		self.lst = lst
+		self.index = index
+		self.value = value
+	def accept(self, visitor: "ExprVisitor"):
+		return visitor.visit_listassign_expr(self)
 
 class LiteralExpr(Expr):
 	def __init__(self, value: "object", ):

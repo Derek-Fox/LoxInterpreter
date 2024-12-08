@@ -129,6 +129,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         for item in expr.items:
             self.resolve(item)
 
+    def visit_listassign_expr(self, expr: "ListAssignExpr"):
+        self.resolve(expr.value)
+        self.resolve(expr.index)
+        self.resolve(expr.lst)
+
     def visit_literal_expr(self, expr: "LiteralExpr"):
         pass
 
