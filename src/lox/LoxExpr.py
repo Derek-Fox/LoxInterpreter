@@ -37,8 +37,9 @@ class Expr(ABC):
 	def accept(self, visitor: "ExprVisitor"): pass
 
 class AccessExpr(Expr):
-	def __init__(self, lst: "Expr", index: "Expr", ):
+	def __init__(self, lst: "Expr", bracket: "LoxToken", index: "Expr", ):
 		self.lst = lst
+		self.bracket = bracket
 		self.index = index
 	def accept(self, visitor: "ExprVisitor"):
 		return visitor.visit_access_expr(self)

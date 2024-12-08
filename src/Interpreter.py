@@ -119,13 +119,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_access_expr(self, expr: "AccessExpr"):
         lst = self.evaluate(expr.lst)
         if not isinstance(lst, list):
-            raise LoxRuntimeError(expr.lst, "Can only access index of lists.")
+            raise LoxRuntimeError(expr.bracket, "Can only access index of lists.")
 
         idx = self.evaluate(expr.index)
         if not (isinstance(idx, float) and float(idx).is_integer()):
-            raise LoxRuntimeError(expr.index, "Can only index with a whole number.")
+            raise LoxRuntimeError(expr.bracket, "Can only index with a whole number.")
 
-        return lst[int(idx)]
+        try:
+            return lst[int(idx)]
+        except IndexError:
+            raise LoxRuntimeError(expr.bracket, "List index out of range.")
 
     def visit_assign_expr(self, expr: "AssignExpr"):
         value = self.evaluate(expr.value)

@@ -114,6 +114,22 @@ class Parser:
 
         return self.call()
 
+    def call(self) -> Expr:
+        expr = self.primary()
+
+        while True:
+            if self.match(TT.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            elif self.match(TT.DOT):
+                name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
+                expr = GetExpr(expr, name)
+            elif self.match(TT.LEFT_BRACKET):
+                return self.finish_access(expr)
+            else:
+                break
+
+        return expr
+
     def primary(self) -> Expr:
         if self.match(TT.FALSE): return LiteralExpr(False)
         if self.match(TT.TRUE): return LiteralExpr(True)
@@ -138,22 +154,6 @@ class Parser:
 
         raise self.error(self.peek(), "Expect expression.")
 
-    def call(self) -> Expr:
-        expr = self.primary()
-
-        while True:
-            if self.match(TT.LEFT_PAREN):
-                expr = self.finish_call(expr)
-            elif self.match(TT.DOT):
-                name = self.consume(TT.IDENTIFIER, "Expect property name after '.'.")
-                expr = GetExpr(expr, name)
-            elif self.match(TT.LEFT_BRACKET):
-                return self.finish_access(expr)
-            else:
-                break
-
-        return expr
-
     def finish_call(self, callee: Expr) -> CallExpr:
         arguments = []
 
@@ -169,7 +169,6 @@ class Parser:
         return CallExpr(callee, paren, arguments)
 
     def finish_access(self, lst: Expr) -> AccessExpr:
-        idx = None
         if self.match(TT.NUMBER):
             idx = LiteralExpr(self.previous().literal)
         elif self.match(TT.IDENTIFIER):
@@ -177,9 +176,9 @@ class Parser:
         else:
             idx = self.term()
 
-        self.consume(TT.RIGHT_BRACKET, "Expect ']' after index.")
+        bracket = self.consume(TT.RIGHT_BRACKET, "Expect ']' after index.")
 
-        return AccessExpr(lst, idx)
+        return AccessExpr(lst, bracket, idx)
 
     def list_expr(self) -> ListExpr:
         items = []
