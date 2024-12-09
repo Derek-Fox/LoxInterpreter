@@ -33,6 +33,7 @@ class Lox:
             print('> ', end='')
             try:
                 line = input()
+                if line == "exit": return
                 cls.run(line, repl=True)
                 Lox.had_error = False
             except EOFError:
