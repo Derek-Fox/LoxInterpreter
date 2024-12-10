@@ -1,6 +1,6 @@
 src/__pycache__/
 src/lox/__pycache__/
-src/pylox/__pycache__/
+src/run/__pycache__/
 src/pylox.egg-info
 build
 .idea
