@@ -12,7 +12,6 @@ class Scanner:
         "if": TT.IF,
         "nil": TT.NIL,
         "or": TT.OR,
-        "print": TT.PRINT,
         "return": TT.RETURN,
         "super": TT.SUPER,
         "this": TT.THIS,

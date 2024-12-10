@@ -4,7 +4,7 @@ Custom interpreter written in Python for the fictional language Lox.
 Following the guidance of the excellent materials from Robert Nystrom at https://craftinginterpreters.com/
 
 ## Supported Language Features
-### See test.lox for examples of each feature
+#### See test.lox for examples of each feature
 - Comments (//, /* */)
 - Print Statements
 - Arithmetic operations (+, -, *, /, **)
@@ -30,10 +30,13 @@ Following the guidance of the excellent materials from Robert Nystrom at https:/
 - Interpreter Runtime Errors
 
 ### Native Functions
+- print(value): Print a value to the console.
 - isType(value, type): Check if a value is of a certain type. Returns a boolean.
 - convert(value, type): Convert a value to a certain type. Returns the converted value.
 - sqrt(value): Return the square root of a number.
 - ln(value): Return the natural logarithm of a number.
+- log10(value): Return the base 10 logarithm of a number.
+- exp(value): Return e raised to the power of a number.
 - randFloat(min, max): Return a random float between min and max.
 - randInt(min, max): Return a random integer between min and max.
 - length(value): Return the length of a list or string.
@@ -43,10 +46,8 @@ Following the guidance of the excellent materials from Robert Nystrom at https:/
 - exit(code): Exit the interpreter with a status code.
 
 ## Installation
-- Clone the repository:
-`git clone https://github.com/Derek-Fox/PythonLoxInterpreter.git`
-- Install dependencies:
-`pip install -r requirements.txt`
+- Clone the repository: `git clone https://github.com/Derek-Fox/PythonLoxInterpreter.git`
+- Install dependencies: `pip install -r requirements.txt`
 - Install the package: `pip install .`
 
 ## Usage

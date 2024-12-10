@@ -85,10 +85,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
         function = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
 
-    def visit_print_stmt(self, stmt: "PrintStmt"):
-        value = self.evaluate(stmt.expression)
-        print(self.stringify(value))
-
     def visit_var_stmt(self, stmt: "VarStmt"):
         initializer = stmt.initializer
         value = None if initializer is None else self.evaluate(initializer)

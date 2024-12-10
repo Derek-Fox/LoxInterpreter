@@ -61,7 +61,6 @@ def define_stmt_classes(output_dir):
         'Expression': {'expression': 'Expr'},
         'Function': {'name': 'LoxToken', 'params': 'list[LoxToken]', 'body': 'list[Stmt]'},
         'If': {'condition': 'Expr', 'thenBranch': 'Stmt', 'elseBranch': 'Stmt'},
-        'Print': {'expression': 'Expr'},
         'Return': {'keyword': 'LoxToken', 'value': 'Expr'},
         'Var': {'name': 'LoxToken', 'initializer': 'Expr'},
         'While': {'condition': 'Expr', 'body': 'Stmt'}

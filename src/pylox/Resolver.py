@@ -75,9 +75,6 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve(stmt.thenBranch)
         if stmt.elseBranch: self.resolve(stmt.elseBranch)
 
-    def visit_print_stmt(self, stmt: "PrintStmt"):
-        self.resolve(stmt.expression)
-
     def visit_return_stmt(self, stmt: "ReturnStmt"):
         if self.current_function == FunctionType.NONE:
             self.error(stmt.keyword, "Can't return when not in a function.")

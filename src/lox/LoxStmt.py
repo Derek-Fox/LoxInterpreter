@@ -14,8 +14,6 @@ class StmtVisitor(ABC):
 	@abstractmethod
 	def visit_if_stmt(self, stmt: "IfStmt"): pass
 	@abstractmethod
-	def visit_print_stmt(self, stmt: "PrintStmt"): pass
-	@abstractmethod
 	def visit_return_stmt(self, stmt: "ReturnStmt"): pass
 	@abstractmethod
 	def visit_var_stmt(self, stmt: "VarStmt"): pass
@@ -61,12 +59,6 @@ class IfStmt(Stmt):
 		self.elseBranch = elseBranch
 	def accept(self, visitor: "StmtVisitor"):
 		return visitor.visit_if_stmt(self)
-
-class PrintStmt(Stmt):
-	def __init__(self, expression: "Expr", ):
-		self.expression = expression
-	def accept(self, visitor: "StmtVisitor"):
-		return visitor.visit_print_stmt(self)
 
 class ReturnStmt(Stmt):
 	def __init__(self, keyword: "LoxToken", value: "Expr", ):

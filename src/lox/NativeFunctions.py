@@ -45,6 +45,20 @@ class NativeFunction(LoxCallable, ABC):
                 message=f"Need arguments of type {[pythontype_to_loxtype[t] for t in types]} for {self.name}.")
 
 
+class Print(NativeFunction):
+    """
+    Native function to print to stdout.
+    """
+
+    name = "print"
+
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
+        print(interpreter.stringify(arguments[0]))
+        return None
+
 class TypeCheck(NativeFunction):
     """
     Native function to check the type of a value.
