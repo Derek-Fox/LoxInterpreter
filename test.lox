@@ -7,9 +7,9 @@
   print 5; // Expect 5
   print "Hello, World!"; // Expect "Hello, World!"
 
-// Arithmetic operations (+, -, *, /)
+// Arithmetic operations (+, -, *, /, ^)
   print "---- Testing arithmetic operations ----";
-  print (1 + 2) * 3 / 4 - 5; // Expect -2.5
+  print (1 + 2) * 3 ^ 2 / 4 - 5; // Expect 1.75
 
 // Unary operations (-, !)
   print "---- Testing unary operations ----";
@@ -37,7 +37,7 @@
 
 // Augmented Assignments (+=, -=, *=, /=)
   print "---- Testing augmented assignments ----";
-  x = 10;
+  var x = 10;
   x += 5;
   print x; // Expect 15
   x -= 5;
@@ -47,14 +47,21 @@
   x /= 4;
   print x; // Expect 5
 
-// Variable Scope (Lexical Scoping)
+ // Increment and Decrement (++, --)
+  print "---- Testing increment and decrement ----";
+  var x = 5;
+  ++x;
+  print x; // Expect 6
+  --x;
+  print x; // Expect 5
+
+// Variable Scope (Lexical Scoping) and Block Statements
   print "---- Testing variable scope ----";
   var x = 5;
-  fun printX() {
+  {
     var x = 10;
-    print x;
+    print x; // Expect 10
   }
-  printX(); // Expect 10
   print x; // Expect 5
 
 // Lists, List Indexing, List Assignment, List Length
@@ -73,25 +80,28 @@
   } else {
     print "x is greater than or equal to 5"; //Expect nothing (as x is less than 5)
   }
+  var list = [];
   while (x < 5) {
-    print x; // Expect 0, 1, 2, 3, 4
-    x = x + 1;
+    list += x;
+    ++x;
   }
+  print list; // Expect [0, 1, 2, 3, 4]
   for (var i = 0; i < 5; i = i + 1) {
     print i; // Expect 0, 1, 2, 3, 4
   }
 
 // Native Functions
   print "---- Testing native functions ----";
-  print "Enter a number: (time to sleep in seconds (so a small number, unless you want to wait a long time!))";
-  var userInput = input();
-  print "Your input: " + userInput; // Expect "Your input: <user input>"
+  // print "Enter a number: (time to sleep in seconds (so a small number, unless you want to wait a long time!))";
+  // var userInput = input();
+  // print "Your input: " + userInput; // Expect "Your input: <user input>"
+  var userInput = 2; // Comment this line and uncomment the above code to test input
   var startTime = clock();
   var sleepTime = convert(userInput, "number");
   print isType(sleepTime, "number"); // Expect "true"
   sleepTime = sqrt(sleepTime + randInt(2, 4)) - ln(randFloat(3, 6));
   if (sleepTime <= 0) {
-    print "Non-positive sleep time, skipping."
+    print "Non-positive sleep time, skipping.";
   } else {
     sleep(sleepTime);
     print "Slept for: " + (clock() - startTime) + " seconds." ; // Expect "Slept for: <roughly user input>"
@@ -210,6 +220,11 @@
   print dog.speak(); // Expect "Dog barks"
   print dog.speakLikeAnimal(); // Expect "Animal speaks"
 
-// Interpreter Runtime Errors
-  print "---- Testing interpreter runtime errors ----";
-  print 5 / 0; // Expect "RuntimeError: Cannot divide by zero"
+// Parse Errors (uncomment to test)
+  // print "---- Testing parse errors ----";
+  // print 5 +; // Expect "ParseError: Expected expression after '+'"
+  // class {} // Expect "ParseError: Expected expression after '+'"
+
+// Interpreter Runtime Errors (uncomment to test)
+  // print "---- Testing interpreter runtime errors ----";
+  //print 5 / 0; // Expect "RuntimeError: Cannot divide by zero"
