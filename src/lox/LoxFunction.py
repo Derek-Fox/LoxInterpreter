@@ -19,7 +19,7 @@ class LoxFunction(LoxCallable):
         return LoxFunction(self.declaration, environment, self.is_initializer)
 
     def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
-        from Interpreter import Interpreter
+        from pylox.Interpreter import Interpreter
         environment = Environment(self.closure)
 
         for param, arg in zip(self.declaration.params, arguments):
