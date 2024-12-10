@@ -1,5 +1,5 @@
-from .LoxCallable import LoxCallable
-from .LoxRuntimeError import LoxRuntimeError
+from lox.LoxCallable import LoxCallable
+from lox.LoxRuntimeError import LoxRuntimeError
 
 
 class ListLen(LoxCallable):

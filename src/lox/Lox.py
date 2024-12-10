@@ -1,9 +1,9 @@
 import sys
 
-from Interpreter import Interpreter
-from Parser import Parser
-from Resolver import Resolver
-from Scanner import Scanner
+from pylox.Interpreter import Interpreter
+from pylox.Parser import Parser
+from pylox.Resolver import Resolver
+from pylox.Scanner import Scanner
 
 
 class Lox:
@@ -17,9 +17,13 @@ class Lox:
         Run Lox code from file.
         :param filename: path to file
         """
-        with open(filename) as file:
-            file_contents = file.read()
-        cls.run(file_contents)
+        try:
+            with open(filename) as file:
+                file_contents = file.read()
+            cls.run(file_contents)
+        except FileNotFoundError:
+            print(f"File '{filename}' not found.")
+            sys.exit(1)
 
         if Lox.had_error: sys.exit(65)
         if Lox.had_runtime_error: sys.exit(70)
