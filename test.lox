@@ -55,6 +55,12 @@
   --x;
   print x; // Expect 5
 
+// Strings and String Concatenation
+  print "---- Testing strings and string concatenation ----";
+  var str = "Hello";
+  print str; // Expect "Hello"
+  print str + ", World!"; // Expect "Hello, World!"
+
 // Variable Scope (Lexical Scoping) and Block Statements
   print "---- Testing variable scope ----";
   var x = 5;
@@ -107,6 +113,11 @@
     print "Slept for: " + (clock() - startTime) + " seconds." ; // Expect "Slept for: <roughly user input>"
   }
   print length("slept"); // Expect 5
+
+// Global Math Constants
+  print "---- Testing global math constants ----";
+  print PI; // Expect 3.141592653589793
+  print E; // Expect 2.718281828459045
 
 // Function declarations and Function Calls
   print "---- Testing function declarations and function calls ----";
