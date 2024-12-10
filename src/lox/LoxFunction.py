@@ -34,8 +34,5 @@ class LoxFunction(LoxCallable):
 
         if self.is_initializer: return self.closure.get_at(0, "this")
 
-    def check_arg_types(self, arg: str, *types: type[float | bool | str | list]):
-        pass  # user needs to implement their own sanity checks if they want them
-
     def __repr__(self):
         return f'<fn {self.declaration.name.lexeme}>'

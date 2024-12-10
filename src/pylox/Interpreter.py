@@ -1,3 +1,4 @@
+import abc
 import inspect
 
 from lox.LoxEnvironment import Environment
@@ -10,6 +11,8 @@ from lox.LoxRuntimeError import LoxRuntimeError
 from lox.LoxReturn import LoxReturn
 from lox.LoxStmt import *
 from lox.LoxToken import TokenType as TT
+import lox.NativeFunctions
+from lox.NativeFunctions import NativeFunction
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -18,15 +21,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.environment = self.globals
         self.locals: dict[Expr, int] = {}
 
-        import lox.NativeFunctions
-        self.define_native_functions(lox.NativeFunctions)
+        self.define_native_functions()
 
-        import lox.ListNativeFunctions
-        self.define_native_functions(lox.ListNativeFunctions)
-
-    def define_native_functions(self, module):
-        ignore = [LoxCallable, LoxRuntimeError]
-        for _, obj in inspect.getmembers(module, predicate=lambda x: inspect.isclass(x) and x not in ignore):
+    def define_native_functions(self):
+        ignore = [LoxCallable, LoxRuntimeError, lox.NativeFunctions.NativeFunction, abc.ABC]
+        for _, obj in inspect.getmembers(lox.NativeFunctions, predicate=lambda x: inspect.isclass(x) and x not in ignore):
             self.globals.define(obj.name, obj())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):

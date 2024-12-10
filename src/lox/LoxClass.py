@@ -31,8 +31,5 @@ class LoxClass(LoxCallable):
         initializer = self.find_method("init")
         return 0 if not initializer else initializer.arity()
 
-    def check_arg_types(self, arg: str, *types: type[float | bool | str | list]):
-        pass  # user needs to implement their own sanity checks if they want them
-
     def __repr__(self) -> str:
         return f'<class {self.name}>'
