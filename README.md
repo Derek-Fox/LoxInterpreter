@@ -46,7 +46,8 @@ Following the guidance of the excellent materials from Robert Nystrom at https:/
 - exit(code): Exit the interpreter with a status code.
 
 ## Installation
-- Clone the repository: `git clone https://github.com/Derek-Fox/PythonLoxInterpreter.git`
+- Clone the repository: `git clone https://github.com/Derek-Fox/pylox.git`
+- Navigate to repository: `cd pylox`
 - Install dependencies: `pip install -r requirements.txt`
 - Install the package: `pip install .`
 
