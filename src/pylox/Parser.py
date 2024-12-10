@@ -49,7 +49,7 @@ class Parser:
     def in_de_crement(self) -> Expr:
         if self.match(TT.PLUS_PLUS, TT.MINUS_MINUS):
             crement = self.previous()
-            left = self.assign_with_op()
+            left = self.augmented_assign()
 
             if isinstance(left, VariableExpr):
                 return AssignExpr(left.name, BinaryExpr(left, crement, LiteralExpr(1.)))
@@ -58,11 +58,11 @@ class Parser:
             elif isinstance(left, AccessExpr):
                 return ListAssignExpr(left.name, left.lst, left.index, BinaryExpr(left, crement, LiteralExpr(1.)))
 
-            self.error(assign_op, "Invalid assignment target.")
+            self.error(crement, "Invalid in/decrement target.")
 
-        return self.assign_with_op()
+        return self.augmented_assign()
 
-    def assign_with_op(self) -> Expr:
+    def augmented_assign(self) -> Expr:
         left = self.logic_or()
 
         if self.match(TT.MINUS_EQUAL, TT.PLUS_EQUAL, TT.SLASH_EQUAL, TT.STAR_EQUAL):
