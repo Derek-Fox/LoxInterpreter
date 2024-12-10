@@ -1,5 +1,6 @@
 import abc
 import inspect
+import math
 
 from lox.LoxEnvironment import Environment
 from lox.LoxExpr import *
@@ -21,11 +22,17 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.environment = self.globals
         self.locals: dict[Expr, int] = {}
 
+        self.define_global_constants()
         self.define_native_functions()
+
+    def define_global_constants(self):
+        self.globals.define("PI", math.pi)
+        self.globals.define("E", math.e)
 
     def define_native_functions(self):
         ignore = [LoxCallable, LoxRuntimeError, lox.NativeFunctions.NativeFunction, abc.ABC]
-        for _, obj in inspect.getmembers(lox.NativeFunctions, predicate=lambda x: inspect.isclass(x) and x not in ignore):
+        for _, obj in inspect.getmembers(lox.NativeFunctions,
+                                         predicate=lambda x: inspect.isclass(x) and x not in ignore):
             self.globals.define(obj.name, obj())
 
     def interpret(self, statements: list[Stmt], repl: bool = False):

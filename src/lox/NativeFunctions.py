@@ -22,7 +22,6 @@ pythontype_to_loxtype = {
 Ideas for more builtins:
 Here are some ideas for additional native functions you could implement:
 Trigonometric Functions: Functions like sin, cos, tan, asin, acos, and atan to perform trigonometric calculations.
-Exponential and Power Functions: Functions like exp (exponential), pow (power), and log10 (logarithm base 10).
 String Manipulation: Functions like substring, toUpperCase, toLowerCase, trim, replace, and split.
 List Operations: Functions like append, remove, indexOf, sort, and reverse.
 File I/O: Functions to read from and write to files.
@@ -122,7 +121,7 @@ class SquareRoot(NativeFunction):
         return sqrt(num)
 
 
-class Logarithm(NativeFunction):
+class NaturalLog(NativeFunction):
     """
     Native function to find the natural logarithm of a number.
     """
@@ -139,6 +138,44 @@ class Logarithm(NativeFunction):
 
         from math import log
         return log(num)
+
+
+class Log10(NativeFunction):
+    """
+    Native function to find the base 10 logarithm of a number.
+    """
+
+    name = "log10"
+
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
+        num = arguments[0]
+
+        self.check_arg_types(num, float)
+
+        from math import log10
+        return log10(num)
+
+
+class Exponential(NativeFunction):
+    """
+    Native function to calculate the exponential of a number.
+    """
+
+    name = "exp"
+
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
+        num = arguments[0]
+
+        self.check_arg_types(num, float)
+
+        from math import exp
+        return exp(num)
 
 
 class RandomFloat(NativeFunction):
@@ -246,3 +283,21 @@ class Sleep(NativeFunction):
         import time
         time.sleep(sleep_time)
         return None
+
+
+class Exit(NativeFunction):
+    """
+    Native function to exit the program with a given exit code.
+    """
+    name = 'exit'
+
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter: "Interpreter", arguments: list[object]) -> object:
+        exit_code = arguments[0]
+
+        self.check_arg_types(exit_code, float)
+
+        import sys
+        sys.exit(int(exit_code))
