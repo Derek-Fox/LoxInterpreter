@@ -4,4 +4,3 @@ src/pylox/__pycache__/
 src/pylox.egg-info
 build
 .idea
-test.lox

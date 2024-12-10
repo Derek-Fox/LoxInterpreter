@@ -1,0 +1,215 @@
+// Comments (//, /* */)
+  // This is a comment
+  /* This is a block comment */
+
+// Print Statements
+  print "---- Testing print statements ----"; // Expect "Testing print statements"
+  print 5; // Expect 5
+  print "Hello, World!"; // Expect "Hello, World!"
+
+// Arithmetic operations (+, -, *, /)
+  print "---- Testing arithmetic operations ----";
+  print (1 + 2) * 3 / 4 - 5; // Expect -2.5
+
+// Unary operations (-, !)
+  print "---- Testing unary operations ----";
+  print -(-5); // Expect 5
+  print !true; // Expect false
+
+// Comparison operations (>, >=, <, <=, ==, !=)
+  print "---- Testing comparison operations ----";
+  print 5 > 10; // Expect false
+  print 5 >= 5; // Expect true
+  print 5 < 10; // Expect true
+  print 5 <= 5; // Expect true
+  print 5 == 5; // Expect true
+  print 5 != 5; // Expect false
+
+// Logical operations (and, or)
+  print "---- Testing logical operations ----";
+  print true and false or true; // Expect true
+
+// Variable Declarations, Assignments, and Access
+  print "---- Testing variable declarations, assignments, and access ----";
+  var x = 5;
+  x = 10;
+  print x; // Expect 10
+
+// Augmented Assignments (+=, -=, *=, /=)
+  print "---- Testing augmented assignments ----";
+  x = 10;
+  x += 5;
+  print x; // Expect 15
+  x -= 5;
+  print x; // Expect 10
+  x *= 2;
+  print x; // Expect 20
+  x /= 4;
+  print x; // Expect 5
+
+// Variable Scope (Lexical Scoping)
+  print "---- Testing variable scope ----";
+  var x = 5;
+  fun printX() {
+    var x = 10;
+    print x;
+  }
+  printX(); // Expect 10
+  print x; // Expect 5
+
+// Lists, List Indexing, List Assignment, List Length
+  print "---- Testing lists, list indexing, list assignment, and list length ----";
+  var list = [1, 2, 3];
+  print list[0]; // Expect 1
+  list[0] = 5;
+  print list[0]; // Expect 5
+  print length(list); // Expect 3
+
+// Control Flow (if//else, while, for)
+  print "---- Testing control flow ----";
+  x = 0;
+  if (x < 5) {
+    print "x is less than 5"; // Expect "x is less than 5"
+  } else {
+    print "x is greater than or equal to 5"; //Expect nothing (as x is less than 5)
+  }
+  while (x < 5) {
+    print x; // Expect 0, 1, 2, 3, 4
+    x = x + 1;
+  }
+  for (var i = 0; i < 5; i = i + 1) {
+    print i; // Expect 0, 1, 2, 3, 4
+  }
+
+// Native Functions
+  print "---- Testing native functions ----";
+  print "Enter a number: (time to sleep in seconds (so a small number, unless you want to wait a long time!))";
+  var userInput = input();
+  print "Your input: " + userInput; // Expect "Your input: <user input>"
+  var startTime = clock();
+  var sleepTime = convert(userInput, "number");
+  print isType(sleepTime, "number"); // Expect "true"
+  sleepTime = sqrt(sleepTime + randInt(2, 4)) - ln(randFloat(3, 6));
+  if (sleepTime <= 0) {
+    print "Non-positive sleep time, skipping."
+  } else {
+    sleep(sleepTime);
+    print "Slept for: " + (clock() - startTime) + " seconds." ; // Expect "Slept for: <roughly user input>"
+  }
+  print length("slept"); // Expect 5
+
+// Function declarations and Function Calls
+  print "---- Testing function declarations and function calls ----";
+  fun add(a, b) {
+    return a + b;
+  }
+  print add(5, 10); // Expect 15
+
+// Closures
+  print "---- Testing closures ----";
+  fun makeCounter() {
+    var i = 0;
+    fun count() {
+      i = i + 1;
+      return i;
+    }
+    return count;
+  }
+  var counter = makeCounter();
+  print counter(); // Expect 1
+  print counter(); // Expect 2
+  print counter(); // Expect 3
+
+// Closures with captured variables
+  print "---- Testing closures with captured variables ----";
+  fun makeAdder(a) {
+    fun add(b) {
+      return a + b;
+    }
+    return add;
+  }
+  var add5 = makeAdder(5);
+  print add5(10); // Expect 15
+
+// Recursion
+  print "---- Testing recursion ----";
+  fun factorial(n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+  }
+  print factorial(5); // Expect 120
+
+// Classes
+  print "---- Testing classes ----";
+  class Counter {
+    init(start) {
+      this.i = start;
+    }
+
+    count() { // note that method declarations do not use the fun keyword
+      this.i = this.i + 1;
+      return this.i;
+    }
+  }
+  var counter = Counter(3);
+  print counter; // Expect "<class Counter instance>"
+  print counter.count(); // Expect 4
+  print counter.count(); // Expect 5
+  print counter.count(); // Expect 6
+
+// Inheritance
+  print "---- Testing inheritance ----";
+  class Cat {
+    init(name) {
+      this.name = name;
+    }
+
+    speak() {
+      return this.name + " says 'Meow!'"; // Expect "<name> says 'Meow!'"
+    }
+
+    toString() {
+      return this.name;
+    }
+  }
+
+  class Lion < Cat {
+    speak() {
+      return this.name + " roars loudly!"; // Expect "<name> roars loudly!"
+    }
+  }
+  var cat = Cat("Whiskers");
+  var lion = Lion("Simba");
+  print cat; // Expect "<class Cat instance>"
+  print lion; // Expect "<class Lion instance>"
+  print cat.speak(); // Expect "Whiskers says 'Meow!'"
+  print lion.speak(); // Expect "Simba roars loudly!"
+  print cat.toString(); // Expect "Whiskers"
+  print lion.toString(); // Expect "Simba"
+
+// Superclass methods
+  print "---- Testing superclass methods ----";
+  class Animal {
+    speak() {
+      return "Animal speaks";
+    }
+  }
+
+  class Dog < Animal {
+    speak() {
+      return "Dog barks";
+    }
+
+    speakLikeAnimal() {
+      return super.speak();
+    }
+  }
+
+  var dog = Dog();
+  print dog; // Expect "<class Dog instance>"
+  print dog.speak(); // Expect "Dog barks"
+  print dog.speakLikeAnimal(); // Expect "Animal speaks"
+
+// Interpreter Runtime Errors
+  print "---- Testing interpreter runtime errors ----";
+  print 5 / 0; // Expect "RuntimeError: Cannot divide by zero"
