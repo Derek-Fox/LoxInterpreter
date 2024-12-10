@@ -13,7 +13,7 @@ class LoxCallable(ABC):
         """Call the LoxCallable with the given arguments. Uses the global environment of the passed interpreter."""
         pass
 
-    def check_arg_types(self, arg: str, *types: type[float | bool | str | list]):
+    def check_arg_types(self, arg: object, *types: type[float | bool | str | list]):
         type_map = {
             float: "number",
             bool: "boolean",
