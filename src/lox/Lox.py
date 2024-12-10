@@ -1,9 +1,9 @@
 import sys
 
-from pylox.Interpreter import Interpreter
-from pylox.Parser import Parser
-from pylox.Resolver import Resolver
-from pylox.Scanner import Scanner
+from run.Interpreter import Interpreter
+from run.Parser import Parser
+from run.Resolver import Resolver
+from run.Scanner import Scanner
 
 
 class Lox:

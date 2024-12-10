@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 from lox.LoxExpr import *
-from pylox.Interpreter import Interpreter
+from run.Interpreter import Interpreter
 from lox.LoxStmt import *
 
 

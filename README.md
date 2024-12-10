@@ -27,7 +27,7 @@ Following the guidance of the excellent materials from Robert Nystrom at https:/
 - Inheritance (class \<name> < \<superclass> { \<methods> })
 - Superclass methods (super.\<method>())
 - Parse Errors (will detect as many as possible at once)
-- Interpreter Runtime Errors
+- Runtime Errors
 
 ### Native Functions
 - print(value): Print a value to the console.
